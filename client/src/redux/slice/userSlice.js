@@ -3,13 +3,22 @@ import { axiosInstance } from "../helper/helper";
 import { destroyCookie, setCookie } from "nookies";
 
 const initialState = {
-  isCreateUSerPending: true,
-  newUser: null,
+  isUserPending: true,
+  user:null
 };
 
 export const signupUser = createAsyncThunk("signup", async (body) => {
   try {
     const res = await axiosInstance.post("/signup", body);
+    return res?.data;
+  } catch (err) {
+    throw err;
+  }
+});
+
+export const loginUser = createAsyncThunk("login", async (body) => {
+  try {
+    const res = await axiosInstance.post("/login", body);
     return res?.data;
   } catch (err) {
     throw err;
@@ -27,21 +36,39 @@ export const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+    // For Sign up
       .addCase(signupUser.pending, (action, state) => {
-        state.isCreateUSerPending = true;
+        state.isUserPending = true;
       })
       .addCase(signupUser.fulfilled, (state, { payload }) => {
         if (payload.status === 201) {
-          state.isCreateUSerPending = false;
-          state.newUser = payload?.data;
+          state.isUserPending = false;
+          state.user = payload?.data;
           setCookie(null, "token", payload?.token, {
             path: "/",
           });
         }
       })
       .addCase(signupUser.rejected, (action, state) => {
-        state.isCreateUSerPending = true;
-      });
+        state.isUserPending = true;
+      })
+      // For Login
+
+      .addCase(loginUser.pending, (action, state) => {
+        state.isUserPending = true;
+      })
+      .addCase(loginUser.fulfilled, (state, { payload }) => {
+        if (payload.status === 200) {
+          state.isUserPending = false;
+          state.user = payload?.data;
+          setCookie(null, "token", payload?.token, {
+            path: "/",
+          });
+        }
+      })
+      .addCase(loginUser.rejected, (action, state) => {
+        state.isUserPending = true;
+      })
   },
 });
 

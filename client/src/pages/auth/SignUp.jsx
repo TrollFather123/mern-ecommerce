@@ -11,11 +11,11 @@ import {
 } from "@mui/material";
 import React from "react";
 import SigninAvatar from "../../assest/signin.gif";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import * as yup from "yup";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useSelector, useDispatch } from "react-redux";
+import {  useDispatch } from "react-redux";
 import useImageUpload from "../../utils/imageConverter";
 import { signupUser } from "../../redux/slice/userSlice";
 import { toast } from "react-toastify";
@@ -87,6 +87,7 @@ const userSchema = yup.object().shape({
 });
 
 const SignUp = () => {
+  const navigate = useNavigate()
   const dispatch = useDispatch();
 
   const { image, handleImageUpload } = useImageUpload();
@@ -113,6 +114,7 @@ const SignUp = () => {
       .then((response) => {
         if (response && response.message) {
           toast.success(response.message);
+          navigate("/auth/login")
         }
       })
       .catch((err) => {
