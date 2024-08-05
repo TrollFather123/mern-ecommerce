@@ -16,11 +16,7 @@ exports.signup = async (req, res, next) => {
       throw new Error("password is required!");
     }
 
-    const user = await User.create(req.body);
-
-    const token = await jwt.sign({ id: user._id }, process.env.SECRET_KEY, {
-      expiresIn: "90d",
-    });
+    await User.create(req.body);
 
     const payload = {
       ...user,
@@ -29,8 +25,6 @@ exports.signup = async (req, res, next) => {
 
     res.status(201).json({
       status: 201,
-      data: payload,
-      token,
       message: "Account Created Successfully!!",
     });
   } catch (err) {
@@ -43,28 +37,51 @@ exports.signup = async (req, res, next) => {
 
 exports.login = async (req, res, next) => {
   try {
-    const {email ,password} = req.body;
-    const currentUser = await User.findOne({email});
+    const { email, password } = req.body;
+    const currentUser = await User.findOne({ email });
 
+    const checkPassword = await bcrypt.compare(password, currentUser.password);
 
-    const checkPassword = await bcrypt.compare(password,currentUser.password)
-
-    if(!currentUser || !checkPassword){
+    if (!currentUser || !checkPassword) {
       throw new Error("password or Email is incorrect");
     }
 
     next();
 
-    const token = await jwt.sign({ id: currentUser._id }, process.env.SECRET_KEY, {
-      expiresIn: "90d",
-    });
+    const token = await jwt.sign(
+      { id: currentUser._id },
+      process.env.SECRET_KEY,
+      {
+        expiresIn: "90d",
+      }
+    );
 
     res.status(200).json({
-      status:200,
-      data:currentUser,
+      status: 200,
       token,
-      message:"Login Successfull!!"
-    })
+      message: "Login Successfull!!",
+    });
+  } catch (err) {
+    res.status(401).json({
+      status: 401,
+      message: err.message,
+    });
+  }
+};
+
+exports.userDetails = async (req, res, next) => {
+  try {
+    const currentUser = await User.findOne({ _id: req.userId });
+
+    if (!currentUser) {
+      throw new Error("user not found!!!");
+    }
+
+    res.status(200).json({
+      status: 200,
+      data: currentUser,
+      message: "User found Successfully!!",
+    });
 
 
   } catch (err) {

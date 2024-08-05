@@ -14,8 +14,11 @@ import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentUser, loggedOut } from "../redux/slice/userSlice";
+import { useAuth } from "../hooks/useAuth";
 
-const pages = ["Products", "Pricing", "Blog"];
+const pages = ["Products", "Pricing", "Blog","About"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 function Header() {
@@ -37,7 +40,19 @@ function Header() {
     setAnchorElUser(null);
   };
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
+  const dispatch = useDispatch();
+  
+  
+
+  const { user } = useAuth()
+
+  const handelLogout = () => {
+    dispatch(loggedOut())
+    navigate("/auth/login");
+    console.log("hit")
+  };
 
   return (
     <AppBar position="static">
@@ -131,8 +146,14 @@ function Header() {
 
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+              <IconButton
+                onClick={handleOpenUserMenu}
+                sx={{ p: 0, borderRadius: 0 }}
+              >
+                <Avatar alt="Remy Sharp" src={user?.profilePic} />{" "}
+                {user && (
+                  <Typography variant="caption">Hello {user?.name}</Typography>
+                )}
               </IconButton>
             </Tooltip>
             <Menu
@@ -160,9 +181,23 @@ function Header() {
             <Button sx={{ color: "#fff" }}>
               <ShoppingCartIcon />
             </Button>
-            <Button variant="outlined" color="secondary" onClick={()=>navigate("/auth/login")}>
-              Login
-            </Button>
+            {user ? (
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={() => handelLogout()}
+              >
+                Logout
+              </Button>
+            ) : (
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={() => navigate("/auth/login")}
+              >
+                Login
+              </Button>
+            )}
           </Box>
         </Toolbar>
       </Container>

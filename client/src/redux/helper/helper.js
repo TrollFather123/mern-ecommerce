@@ -11,7 +11,6 @@ export const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(async(config)=>{
 
     const cookies = parseCookies();
-
     const token = cookies?.token;
 
     if(token !== undefined && token !== null){

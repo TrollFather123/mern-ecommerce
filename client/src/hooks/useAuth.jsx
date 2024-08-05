@@ -1,29 +1,33 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
-import { parseCookies } from 'nookies'
+import { parseCookies } from "nookies";
+import { createContext, useContext, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentUser } from "../redux/slice/userSlice";
 
-const AuthContext = createContext()
+const AuthContext = createContext();
 
-const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+export const AuthProvider = ({ children }) => {
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.user);
+
+  const cookies = parseCookies();
+  const token = cookies?.token;
+
+  const isAuthenticated = token;
+
 
   useEffect(() => {
-    const cookies = parseCookies();
-    const token = cookies?.token;
-
-    if (!token) {
-      setIsAuthenticated(false);
-    } else {
-      setIsAuthenticated(true);
+    if(token){
+        dispatch(getCurrentUser())
     }
-  }, []);
+  }, [token]);
+
 
   return (
-    <AuthContext.Provider value={{isAuthenticated}}>
+    <AuthContext.Provider value={{isAuthenticated,  user }}>
       {children}
     </AuthContext.Provider>
-  )
-}
+  );
+};
 
 export const useAuth = () => useContext(AuthContext);
 
-export default AuthProvider;

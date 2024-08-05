@@ -7,16 +7,16 @@ import { RouterProvider } from "react-router-dom";
 import router from "./routes";
 import { Provider } from "react-redux";
 import { store } from "./redux/store/store";
-import AuthProvider from "./hooks/useAuth";
+import { AuthProvider } from "./hooks/useAuth";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <AuthProvider>
-      <Provider store={store}>
+    <Provider store={store}>
+      <AuthProvider>
         <RouterProvider router={router} />
-      </Provider>
-    </AuthProvider>
+      </AuthProvider>
+    </Provider>
   </React.StrictMode>
 );
 
