@@ -3,8 +3,8 @@ import App from "../App";
 import Home from "../pages/Home";
 import Login from "../pages/auth/Login";
 import SignUp from "../pages/auth/SignUp";
-
-
+import AuthGuard from "../components/AuthGuard";
+import About from "../pages/About";
 
 const router = createBrowserRouter([
   {
@@ -14,15 +14,25 @@ const router = createBrowserRouter([
       {
         path: "",
         element: (
-          <Home />
+          <AuthGuard>
+            <Home />
+           </AuthGuard>
         ),
       },
       {
-        path: "/auth/login",
+        path: "about",
+        element: (
+          <AuthGuard>
+            <About />
+           </AuthGuard>
+        ),
+      },
+      {
+        path: "auth/login",
         element: <Login />,
       },
       {
-        path: "/auth/signup",
+        path: "auth/signup",
         element: <SignUp />,
       },
     ],
