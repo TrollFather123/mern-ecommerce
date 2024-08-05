@@ -22,9 +22,14 @@ exports.signup = async (req, res, next) => {
       expiresIn: "90d",
     });
 
+    const payload = {
+      ...user,
+      role : "GENERAL"
+    }
+
     res.status(201).json({
       status: 201,
-      data: user,
+      data: payload,
       token,
       message: "Account Created Successfully!!",
     });

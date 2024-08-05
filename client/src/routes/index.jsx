@@ -3,8 +3,7 @@ import App from "../App";
 import Home from "../pages/Home";
 import Login from "../pages/auth/Login";
 import SignUp from "../pages/auth/SignUp";
-
-
+import ProtectedRoute from "../components/ProtectedRoute";
 
 const router = createBrowserRouter([
   {
@@ -14,7 +13,9 @@ const router = createBrowserRouter([
       {
         path: "",
         element: (
-          <Home />
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
         ),
       },
       {

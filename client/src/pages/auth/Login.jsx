@@ -6,6 +6,7 @@ import {
   Stack,
   Typography,
   Button,
+  Box,
 } from "@mui/material";
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -14,6 +15,7 @@ import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useDispatch } from "react-redux";
 import { loginUser, signupUser } from "../../redux/slice/userSlice";
+import SigninAvatar from "../../assest/signin.gif";
 import { toast } from "react-toastify";
 import { LoginWrapper } from "./SignUp";
 
@@ -70,6 +72,12 @@ const Login = () => {
           onSubmit={handleSubmit(formSubmit)}
         >
           <Grid container spacing={3}>
+          <Grid item xs={12}>
+          <Box className="profile_img">
+                     
+                     <img src={SigninAvatar} alt="avatar" />
+                   </Box>
+            </Grid>
             <Grid item xs={12}>
               <Controller
                 name="email"

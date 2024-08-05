@@ -64,6 +64,10 @@ export const userSlice = createSlice({
           setCookie(null, "token", payload?.token, {
             path: "/",
           });
+
+          setCookie(null, "user", payload?.data, {
+            path: "/",
+          });
         }
       })
       .addCase(loginUser.rejected, (action, state) => {
