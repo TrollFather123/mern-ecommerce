@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllUsers } from "../redux/slice/userSlice";
 import { Box, Button, styled, Typography } from "@mui/material";
@@ -18,14 +18,18 @@ const AllUsers = () => {
   const [userList, setUserList] = useState([]);
   const { isUserPending } = useSelector((s) => s.user);
   const dispatch = useDispatch();
-  useEffect(() => {
+
+  const handelCallAllusers = () => {
     dispatch(getAllUsers())
       .unwrap()
       .then((response) => {
         setUserList(response?.data);
       });
-  }, []);
+  };
 
+  useEffect(() => {
+    handelCallAllusers();
+  }, []);
 
   return (
     <AllUsersWrapper>
@@ -56,7 +60,7 @@ const AllUsers = () => {
                     <TableCell align="center">{row.email}</TableCell>
                     <TableCell align="center">{row.role}</TableCell>
                     <TableCell align="center">
-                      <UpdateUserRole  {...row}/>
+                      <UpdateUserRole {...row} handelCallAllusers={handelCallAllusers}/>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -64,7 +68,6 @@ const AllUsers = () => {
           </Table>
         </TableContainer>
       )}
-
     </AllUsersWrapper>
   );
 };

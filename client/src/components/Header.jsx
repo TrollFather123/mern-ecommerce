@@ -162,7 +162,7 @@ function Header() {
               >
                 <Avatar alt="Remy Sharp" src={user?.profilePic} />{" "}
                 {user && (
-                  <Typography variant="caption">Hello {user?.name}</Typography>
+                  <Typography variant="caption" sx={{color:"#fff",marginLeft:"10px"}}>Hello {user?.name}</Typography>
                 )}
               </IconButton>
             </Tooltip>

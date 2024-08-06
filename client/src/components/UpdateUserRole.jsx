@@ -11,12 +11,12 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import EditIcon from "@mui/icons-material/Edit";
 import { useDispatch } from "react-redux";
-import { updateUserRole } from "../redux/slice/userSlice";
+import { getAllUsers, updateUserRole } from "../redux/slice/userSlice";
 import { toast } from "react-toastify";
 
 const UpdateUserRoleWrapper = styled(Box)``;
 
-const UpdateUserRole = ({ name, email, role, _id }) => {
+const UpdateUserRole = ({ name, email, role, _id ,handelCallAllusers}) => {
   const dispatch = useDispatch();
   const [open, setOpen] = React.useState(false);
 
@@ -47,6 +47,7 @@ const UpdateUserRole = ({ name, email, role, _id }) => {
       .then((res) => {
         if (res && res?.message) {
           toast.success(res?.message);
+          handelCallAllusers()
         }
       })
       .catch((err) => {
