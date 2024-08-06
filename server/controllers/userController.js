@@ -112,8 +112,6 @@ exports.updateUserRole = async (req, res, next) => {
   try {
     const currentUser = await User.findOne({_id:req.userId});
 
-    console.log(currentUser?.role,"currentUser")
-
     // if(currentUser?.role !== "ADMIN"){
     //   throw new Error("User must be Admin to change the role!!")
     // }

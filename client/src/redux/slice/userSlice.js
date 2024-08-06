@@ -5,7 +5,7 @@ import { destroyCookie, setCookie } from "nookies";
 const initialState = {
   isUserPending: true,
   user: null,
-  isUserUpdatePending:true
+  isUserUpdatePending: true,
 };
 
 export const signupUser = createAsyncThunk("signup", async (body) => {
@@ -48,7 +48,7 @@ export const updateUserRole = createAsyncThunk(
   "updateUserRole",
   async ({ id, body }) => {
     try {
-      console.log(body,"body")
+      console.log(body, "body");
       const res = await axiosInstance.put(`/update-user-role/${id}`, body);
       return res?.data;
     } catch (err) {
@@ -63,7 +63,9 @@ export const userSlice = createSlice({
   reducers: {
     loggedOut: (state, action) => {
       state.user = action?.payload;
-      destroyCookie(null, "token");
+      destroyCookie(null, "token", {
+        path: "/",
+      });
     },
   },
   extraReducers: (builder) => {
