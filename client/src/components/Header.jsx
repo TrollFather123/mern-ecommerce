@@ -13,13 +13,24 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { getCurrentUser, loggedOut } from "../redux/slice/userSlice";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { loggedOut } from "../redux/slice/userSlice";
 import { useAuth } from "../hooks/useAuth";
 
-const pages = ["Products", "Pricing", "Blog","About"];
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
+const pages = [
+  // { name: "Products", pathname: "/products" },
+  // { name: "Pricing", pathname: "/pricing" },
+  // { name: "Blog", pathname: "/blog" },
+  { name: "About", pathname: "/about" },
+];
+
+const settings = [
+  { name: "Profile", pathname: "/profile" },
+  { name: "Account", pathname: "/account" },
+  { name: "Dashboard", pathname: "/dashboard" },
+  { name: "Logout", pathname: "/logout" },
+];
 
 function Header() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -43,15 +54,12 @@ function Header() {
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
-  
-  
 
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   const handelLogout = () => {
-    dispatch(loggedOut())
+    dispatch(loggedOut(null));
     navigate("/auth/login");
-    console.log("hit")
   };
 
   return (
@@ -107,8 +115,10 @@ function Header() {
               }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
+                <MenuItem key={page?.name}>
+                  <Link to={page?.pathname}>
+                    <Typography textAlign="center">{page?.name}</Typography>
+                  </Link>
                 </MenuItem>
               ))}
             </Menu>
@@ -135,11 +145,11 @@ function Header() {
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
               <Button
-                key={page}
-                onClick={handleCloseNavMenu}
+                key={page?.name}
+                onClick={()=> navigate(page?.pathname)}
                 sx={{ my: 2, color: "white", display: "block" }}
               >
-                {page}
+                {page?.name}
               </Button>
             ))}
           </Box>
@@ -174,7 +184,9 @@ function Header() {
             >
               {settings.map((setting) => (
                 <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
+                  <Link to={setting.pathname}>
+                    <Typography textAlign="center">{setting.name}</Typography>
+                  </Link>
                 </MenuItem>
               ))}
             </Menu>

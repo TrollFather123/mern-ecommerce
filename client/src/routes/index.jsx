@@ -5,6 +5,9 @@ import Login from "../pages/auth/Login";
 import SignUp from "../pages/auth/SignUp";
 import AuthGuard from "../components/AuthGuard";
 import About from "../pages/About";
+import Dashboard from "../pages/Dashboard";
+import AllUsers from "../pages/AllUsers";
+import AllProducts from "../pages/AllProducts";
 
 const router = createBrowserRouter([
   {
@@ -26,6 +29,24 @@ const router = createBrowserRouter([
             <About />
            </AuthGuard>
         ),
+      },
+      {
+        path: "dashboard",
+        element: (
+          <AuthGuard>
+            <Dashboard />
+           </AuthGuard>
+        ),
+        children:[
+          {
+            path:"all-users",
+            element:<AllUsers/>
+          },
+          {
+            path:"products",
+            element:<AllProducts/>
+          },
+        ]
       },
       {
         path: "auth/login",

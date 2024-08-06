@@ -86,3 +86,62 @@ exports.userDetails = async (req, res, next) => {
     });
   }
 };
+
+exports.getAllUsers = async (req, res, next) => {
+  try {
+    const users = await User.find();
+
+
+    res.status(200).json({
+      status: 200,
+      data: users,
+      message: "Users found Successfully!!",
+    });
+
+
+  } catch (err) {
+    res.status(401).json({
+      status: 401,
+      message: err.message,
+    });
+  }
+};
+
+
+exports.updateUserRole = async (req, res, next) => {
+  try {
+    const currentUser = await User.findOne({_id:req.userId});
+
+    console.log(currentUser?.role,"currentUser")
+
+    // if(currentUser?.role !== "ADMIN"){
+    //   throw new Error("User must be Admin to change the role!!")
+    // }
+
+    const {name,email,role} = req.body
+
+    console.log(role,"role")
+
+    const payload = {
+      ...(name && {name}),
+      ...(email && {email}),
+      ...(role && {role})
+    };
+
+  
+    const user = await User.findByIdAndUpdate(req.params.id,payload);
+
+    res.status(200).json({
+      status: 200,
+      data: user,
+      message: "User updated Successfully!!",
+    });
+
+
+  } catch (err) {
+    res.status(401).json({
+      status: 401,
+      message: err.message,
+    });
+  }
+};

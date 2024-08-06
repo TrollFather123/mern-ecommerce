@@ -23,7 +23,7 @@ import { toast } from "react-toastify";
 export const LoginWrapper = styled(Box)`
   padding: 50px 0;
   .cmn_form {
-    max-width: 400px;
+    max-width: 600px;
     border-radius: 20px;
     padding: 20px;
     margin: 0 auto;
@@ -109,7 +109,11 @@ const SignUp = () => {
 
   const formSubmit = (data) => {
     setValue("profilePic", data.profilePic.name);
-    dispatch(signupUser(data))
+    const payload = {
+      ...data,
+      role:"GENERAL"
+    }
+    dispatch(signupUser(payload))
       .unwrap()
       .then((response) => {
         if (response && response.message) {
