@@ -8,6 +8,8 @@ import About from "../pages/About";
 import Dashboard from "../pages/Dashboard";
 import AllUsers from "../pages/AllUsers";
 import AllProducts from "../pages/AllProducts";
+import ForgotPassword from "../pages/auth/ForgotPassword";
+import ResetPassword from "../pages/auth/ResetPassword";
 
 const router = createBrowserRouter([
   {
@@ -56,6 +58,14 @@ const router = createBrowserRouter([
         path: "auth/signup",
         element: <SignUp />,
       },
+      {
+        path: "auth/reset-password",
+        element: <ResetPassword />,
+      },
+      {
+        path:"auth/forgot-password/:id",
+        element:<ForgotPassword/>
+      }
     ],
   },
 ]);

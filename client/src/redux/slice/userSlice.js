@@ -6,6 +6,7 @@ const initialState = {
   isUserPending: true,
   user: null,
   isUserUpdatePending: true,
+  isResetPasswordPending:true
 };
 
 export const signupUser = createAsyncThunk("signup", async (body) => {
@@ -22,7 +23,7 @@ export const loginUser = createAsyncThunk("login", async (body) => {
     const res = await axiosInstance.post("/login", body);
     return res?.data;
   } catch (err) {
-    throw err;
+    throw err?.message;
   }
 });
 
@@ -56,6 +57,25 @@ export const updateUserRole = createAsyncThunk(
     }
   }
 );
+
+
+export const resetPassword = createAsyncThunk("resetPassword", async (body) => {
+  try {
+    const res = await axiosInstance.post("/password-change-link-sent", body);
+    return res?.data;
+  } catch (err) {
+    throw err;
+  }
+});
+
+export const changePassword = createAsyncThunk("changePassword", async ({id,body}) => {
+  try {
+    const res = await axiosInstance.put(`/change-password/${id}`, body);
+    return res?.data;
+  } catch (err) {
+    throw err;
+  }
+});
 
 export const userSlice = createSlice({
   name: "user",
@@ -143,6 +163,35 @@ export const userSlice = createSlice({
       })
       .addCase(updateUserRole.rejected, (state, action) => {
         state.isUserUpdatePending = true;
+      })
+
+      // Reset Password
+
+      .addCase(resetPassword.pending, (state, action) => {
+        state.isResetPasswordPending = true;
+      })
+      .addCase(resetPassword.fulfilled, (state, { payload }) => {
+        if (payload.status === 200) {
+          state.isResetPasswordPending = false;
+        }
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.isResetPasswordPending = true;
+      })
+
+
+      // Change Password
+
+      .addCase(changePassword.pending, (state, action) => {
+        state.isResetPasswordPending = true;
+      })
+      .addCase(changePassword.fulfilled, (state, { payload }) => {
+        if (payload.status === 200) {
+          state.isResetPasswordPending = false;
+        }
+      })
+      .addCase(changePassword.rejected, (state, action) => {
+        state.isResetPasswordPending = true;
       });
   },
 });

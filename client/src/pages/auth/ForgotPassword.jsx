@@ -8,55 +8,56 @@ import {
   Button,
 } from "@mui/material";
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import * as yup from "yup";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useDispatch } from "react-redux";
-import { loginUser, signupUser } from "../../redux/slice/userSlice";
+import { changePassword, loginUser, signupUser } from "../../redux/slice/userSlice";
 import { toast } from "react-toastify";
 import { LoginWrapper } from "./SignUp";
 
 const userSchema = yup.object().shape({
-  email: yup
-    .string()
-    .trim()
-    .email("Invalid email format")
-    .required("Email is Required!!!"),
-
-  password: yup
+  newPassword: yup
     .string()
     .trim()
     .min(8, "Password must be at least 8 characters")
     .required("Password is Required!!!"),
+
+  confirmNewPassword: yup
+    .string()
+    .trim()
+    .oneOf([yup.ref("newPassword"), null], "Passwords must match")
+    .required("Confirm Password is Required!!!"),
 });
 
-const Login = () => {
+const ForgotPassword = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { handleSubmit, control } = useForm({
     resolver: yupResolver(userSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      newPassword: "",
+      confirmNewPassword: "",
     },
   });
 
+  const {id} = useParams()
+
   const formSubmit = (data) => {
-    dispatch(loginUser(data))
+    dispatch(changePassword({id,body:data}))
       .unwrap()
       .then((response) => {
         if (response && response.message) {
           toast.success(response.message);
           setTimeout(() => {
-            navigate("/");
+            navigate("/auth/login");
           }, 1000);
         }
       })
       .catch((err) => {
         if (err && err.message) {
-          console.log(err)
           toast.error(err.message);
         }
       });
@@ -73,7 +74,7 @@ const Login = () => {
           <Grid container spacing={3}>
             <Grid item xs={12}>
               <Controller
-                name="email"
+                name="newPassword"
                 control={control}
                 render={({
                   field: { onChange, value },
@@ -81,7 +82,7 @@ const Login = () => {
                 }) => (
                   <TextField
                     fullWidth
-                    placeholder="Enter Email"
+                    placeholder="Enter New Password"
                     onChange={onChange}
                     value={value}
                     helperText={error?.message}
@@ -92,7 +93,7 @@ const Login = () => {
             </Grid>
             <Grid item xs={12}>
               <Controller
-                name="password"
+                name="confirmNewPassword"
                 control={control}
                 render={({
                   field: { onChange, value },
@@ -100,7 +101,7 @@ const Login = () => {
                 }) => (
                   <TextField
                     fullWidth
-                    placeholder="Enter Password"
+                    placeholder="Confirm New Password"
                     onChange={onChange}
                     value={value}
                     helperText={error?.message}
@@ -110,19 +111,7 @@ const Login = () => {
               />
             </Grid>
 
-            <Grid item xs={12}>
-              <Stack
-                direction="row"
-                alignItems="center"
-                justifyContent="space-between"
-              >
-                <Typography>
-                  Don't have an account?{" "}
-                  <Link to={"/auth/signup"}>Sign Up</Link>
-                </Typography>
-                <Link to='/auth/reset-password'>Forgot Password?</Link>
-              </Stack>
-            </Grid>
+         
             <Grid item xs={12}>
               <Button
                 variant="contained"
@@ -130,7 +119,7 @@ const Login = () => {
                 fullWidth
                 type="submit"
               >
-                Sign In
+                Submit
               </Button>
             </Grid>
           </Grid>
@@ -140,4 +129,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ForgotPassword;
