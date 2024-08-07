@@ -11,13 +11,13 @@ import { AuthProvider } from "./hooks/useAuth";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
+
     <Provider store={store}>
       <AuthProvider>
         <RouterProvider router={router} />
       </AuthProvider>
     </Provider>
-  </React.StrictMode>
+
 );
 
 // If you want to start measuring performance in your app, pass a function

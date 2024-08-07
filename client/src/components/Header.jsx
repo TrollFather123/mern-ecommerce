@@ -28,8 +28,12 @@ const pages = [
 const settings = [
   { name: "Profile", pathname: "/profile" },
   { name: "Account", pathname: "/account" },
-  { name: "Dashboard", pathname: "/dashboard" },
-  { name: "Logout", pathname: "/logout" },
+  { name: "Dashboard", pathname: "/dashboard/products" },
+];
+
+const settingsForGeneralUser = [
+  { name: "Profile", pathname: "/profile" },
+  { name: "Account", pathname: "/account" },
 ];
 
 function Header() {
@@ -146,7 +150,7 @@ function Header() {
             {pages.map((page) => (
               <Button
                 key={page?.name}
-                onClick={()=> navigate(page?.pathname)}
+                onClick={() => navigate(page?.pathname)}
                 sx={{ my: 2, color: "white", display: "block" }}
               >
                 {page?.name}
@@ -155,41 +159,69 @@ function Header() {
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton
-                onClick={handleOpenUserMenu}
-                sx={{ p: 0, borderRadius: 0 }}
-              >
-                <Avatar alt="Remy Sharp" src={user?.profilePic} />{" "}
-                {user && (
-                  <Typography variant="caption" sx={{color:"#fff",marginLeft:"10px"}}>Hello {user?.name}</Typography>
-                )}
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: "45px" }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Link to={setting.pathname}>
-                    <Typography textAlign="center">{setting.name}</Typography>
-                  </Link>
-                </MenuItem>
-              ))}
-            </Menu>
+            {user?._id && (
+              <>
+                <Tooltip title="Open settings">
+                  <IconButton
+                    onClick={handleOpenUserMenu}
+                    sx={{ p: 0, borderRadius: 0 }}
+                  >
+                    <Avatar alt="Remy Sharp" src={user?.profilePic} />{" "}
+                    {user && (
+                      <Typography
+                        variant="caption"
+                        sx={{ color: "#fff", marginLeft: "10px" }}
+                      >
+                        Hello {user?.name}
+                      </Typography>
+                    )}
+                  </IconButton>
+                </Tooltip>
+                <Menu
+                  sx={{ mt: "45px" }}
+                  id="menu-appbar"
+                  anchorEl={anchorElUser}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUserMenu}
+                >
+                  {user?.role !== "ADMIN" ? (
+                    <Box>
+                      {settingsForGeneralUser.map((setting) => (
+                        <MenuItem key={setting?.name} onClick={handleCloseUserMenu}>
+                          <Link to={setting.pathname}>
+                            <Typography textAlign="center">
+                              {setting.name}
+                            </Typography>
+                          </Link>
+                        </MenuItem>
+                      ))}
+                    </Box>
+                  ) : (
+                    <Box>
+                      {settings.map((setting) => (
+                        <MenuItem key={setting?.name} onClick={handleCloseUserMenu}>
+                          <Link to={setting.pathname}>
+                            <Typography textAlign="center">
+                              {setting.name}
+                            </Typography>
+                          </Link>
+                        </MenuItem>
+                      ))}
+                    </Box>
+                  )}
+                </Menu>
+              </>
+            )}
+
             <Button sx={{ color: "#fff" }}>
               <ShoppingCartIcon />
             </Button>

@@ -7,10 +7,6 @@ const AuthGuard = ({children}) => {
 
 const {isAuthenticated} = useAuth()
 
-
-  console.log(isAuthenticated,"isAuthenticated")
-
-
   if (!isAuthenticated) {
     return <Navigate to="/auth/login" replace />;
   }
