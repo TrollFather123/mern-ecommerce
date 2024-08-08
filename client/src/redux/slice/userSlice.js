@@ -140,6 +140,9 @@ export const userSlice = createSlice({
           setCookie(null, "token", payload?.token, {
             path: "/",
           });
+          setCookie(null, "userID", payload?.data?._id, {
+            path: "/",
+          });
         }
       })
       .addCase(verifyOTP.rejected, (state, action) => {

@@ -161,6 +161,7 @@ exports.login = async (req, res, next) => {
     res.status(200).json({
       status: 200,
       token,
+      data:currentUser,
       message: "Login Successfull!!",
     });
   } catch (err) {
