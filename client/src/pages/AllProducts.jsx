@@ -1,6 +1,6 @@
 import { Box, Button, Grid, Stack, styled, Typography } from "@mui/material";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import UploadProductForm from "../components/UploadProductForm";
 import { useDispatch, useSelector } from "react-redux";
@@ -26,24 +26,28 @@ const AllProducts = () => {
 
   const dispatch = useDispatch();
 
-  const { allProducts, isProductFetchPending } = useSelector((s) => s.product);
+  const { isProductFetchPending } = useSelector((s) => s.product);
 
   const [productList, setProductList] = useState([]);
 
-  useEffect(() => {
+  const fetchAllProducts = useCallback(() =>{
     dispatch(getProducts())
-      .unwrap()
-      .then((res) => {
-        if (res?.status === 200) {
-          setProductList(res?.data);
-          toast.success(res?.message);
-        }
-      })
-      .catch((err) => {
-        if (err) {
-          toast.error(err?.message);
-        }
-      });
+    .unwrap()
+    .then((res) => {
+      if (res?.status === 200) {
+        setProductList(res?.data);
+        toast.success(res?.message);
+      }
+    })
+    .catch((err) => {
+      if (err) {
+        toast.error(err?.message);
+      }
+    });
+  },[])
+
+  useEffect(() => {
+    fetchAllProducts()
   },[]);
 
 
@@ -54,6 +58,7 @@ const AllProducts = () => {
         alignItems="center"
         justifyContent="space-between"
         flexWrap="wrap"
+        sx={{marginBottom:"50px"}}
       >
         <Typography variant="h4" sx={{ fontWeight: "bold" }}>
           {" "}
@@ -63,7 +68,7 @@ const AllProducts = () => {
           Upload Product
         </Button>
       </Stack>
-      <UploadProductForm open={open} onClose={handleClose} />
+      <UploadProductForm open={open} onClose={handleClose} handelFetchProduct={fetchAllProducts}/>
       {isProductFetchPending ? (
         <Typography variant="h3" sx={{ fontWeight: "bold" }}>
           Loading...
@@ -72,8 +77,8 @@ const AllProducts = () => {
         <Box>
             <Grid container spacing={3}>
               {!!productList && productList?.length && productList?.map((item) => (
-                <Grid item lg={3} xs={12} key={item?.designation}>
-                  <EachProductCard {...item} />
+                <Grid item lg={3} xs={12} key={item?.description}>
+                  <EachProductCard {...item} fetchAllProducts={fetchAllProducts}/>
                 </Grid>
               ))}
             </Grid>

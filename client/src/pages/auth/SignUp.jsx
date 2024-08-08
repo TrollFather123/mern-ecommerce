@@ -19,6 +19,7 @@ import {  useDispatch } from "react-redux";
 import useImageUpload from "../../utils/imageConverter";
 import { signupUser } from "../../redux/slice/userSlice";
 import { toast } from "react-toastify";
+import { setCookie } from "nookies";
 
 export const LoginWrapper = styled(Box)`
   padding: 50px 0;
@@ -118,7 +119,8 @@ const SignUp = () => {
       .then((response) => {
         if (response && response.message) {
           toast.success(response.message);
-          navigate("/auth/login")
+          navigate(`/auth/verify-otp`);
+    
         }
       })
       .catch((err) => {

@@ -3,7 +3,9 @@ import { axiosInstance } from "../helper/helper";
 
 const initialState = {
   isProductCreatePending: true,
-  isProductFetchPending: false,
+  isProductFetchPending: true,
+  isSingleProductFetching:true,
+  isUpdateProductPending:true,
   allProducts: null,
 };
 
@@ -24,6 +26,26 @@ export const getProducts = createAsyncThunk("getProduct", async () => {
     throw err;
   }
 });
+
+export const getSingleProduct = createAsyncThunk("getSingleProduct", async (id) => {
+  try {
+    const res = await axiosInstance.get(`/products/${id}`);
+    return res?.data;
+  } catch (err) {
+    throw err;
+  }
+});
+
+export const updateProduct = createAsyncThunk("updateProduct", async ({id,body}) => {
+  try {
+    const res = await axiosInstance.put(`/products/${id}`,body);
+    return res?.data;
+  } catch (err) {
+    throw err;
+  }
+});
+
+
 
 export const productSlice = createSlice({
   name: "products",
@@ -56,7 +78,33 @@ export const productSlice = createSlice({
       })
       .addCase(getProducts.rejected, (state, action) => {
         state.isProductFetchPending = true;
-      });
+      })
+
+      // For Fetch Single Product
+      .addCase(getSingleProduct.pending, (state, action) => {
+        state.isSingleProductFetching = true;
+      })
+      .addCase(getSingleProduct.fulfilled, (state, { payload }) => {
+        if (payload.status === 200) {
+          state.isSingleProductFetching = false;
+        }
+      })
+      .addCase(getSingleProduct.rejected, (state, action) => {
+        state.isSingleProductFetching = true;
+      })
+
+        // For Update Product
+        .addCase(updateProduct.pending, (state, action) => {
+          state.isUpdateProductPending = true;
+        })
+        .addCase(updateProduct.fulfilled, (state, { payload }) => {
+          if (payload.status === 200) {
+            state.isUpdateProductPending = false;
+          }
+        })
+        .addCase(updateProduct.rejected, (state, action) => {
+          state.isUpdateProductPending = true;
+        })
   },
 });
 

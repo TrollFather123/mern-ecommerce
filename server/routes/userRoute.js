@@ -4,7 +4,9 @@ const { authToken } = require("../middlewares/authToken");
 
 const router = express.Router();
 
-router.post("/signup",userController.signup)
+router.post("/signup",userController.signup);
+router.post("/verify-otp",userController.verifyOTP);
+router.post("/resend-otp",userController.resendOTP);
 router.post("/login",userController.login);
 router.get("/user-details",authToken,userController.userDetails);
 router.get("/all-users",authToken,userController.getAllUsers);

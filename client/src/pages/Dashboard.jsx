@@ -12,12 +12,14 @@ const DashboardWrapper = styled(Box)`
     height: 100%;
     padding: 50px 0;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    background-color: #fff;
   }
   .dashboard_rgt {
     width: calc(100% - 300px);
     height: 100%;
     .main_body{
-        padding: 10px;
+      padding: 20px;
+      min-height: 100%;
     }
   }
   .admin_sec {

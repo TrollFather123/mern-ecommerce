@@ -10,6 +10,7 @@ import AllUsers from "../pages/AllUsers";
 import AllProducts from "../pages/AllProducts";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword";
+import VerifyOTP from "../pages/auth/VerifyOTP";
 
 const router = createBrowserRouter([
   {
@@ -57,6 +58,10 @@ const router = createBrowserRouter([
       {
         path: "auth/signup",
         element: <SignUp />,
+      },
+      {
+        path: "auth/verify-otp",
+        element: <VerifyOTP />,
       },
       {
         path: "auth/reset-password",

@@ -16,7 +16,7 @@ import {
 import Dialog from "@mui/material/Dialog";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DialogContent from "@mui/material/DialogContent";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import * as yup from "yup";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -25,10 +25,11 @@ import { uploadImage } from "../api/api.functions";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { createProduct } from "../redux/slice/productSlice";
+import useImageUpload from "../hooks/useImageUpload";
 
-const UploadProductFormWrapper = styled(Box)``;
+export const UploadProductFormWrapper = styled(Box)``;
 
-const UplaodProductWrapper = styled(Box)`
+export const UplaodProductWrapper = styled(Box)`
   .product_img {
     min-height: 50px;
   }
@@ -93,7 +94,7 @@ const productSchema = yup.object().shape({
   sellingPrice: yup.number().required("selling price is Required!!!"),
 });
 
-const UploadProductForm = ({ open, onClose }) => {
+const UploadProductForm = ({ open, onClose ,handelFetchProduct }) => {
   const dispatch = useDispatch();
 
   const { handleSubmit, control } = useForm({
@@ -111,19 +112,14 @@ const UploadProductForm = ({ open, onClose }) => {
 
   const [imageList, setImageList] = useState([]);
 
-  const handelImageUplaod = async (image) => {
-    try {
-      const uploadImageCloudinary = await uploadImage(image);
+  const {imageUrl,handelImageUpload} = useImageUpload();
 
-      if (uploadImageCloudinary?.secure_url) {
-        setImageList((prev) => [...prev, uploadImageCloudinary?.secure_url]);
-      } else {
-        throw new Error("Image upload failed");
+
+  useEffect(()=>{
+      if(imageUrl){
+          setImageList((prev) => [...prev, imageUrl]);
       }
-    } catch (err) {
-      toast.error(err?.message);
-    }
-  };
+  },[imageUrl])
 
   const handelDeleteImage = useCallback(
     (indexNumber) => {
@@ -148,6 +144,7 @@ const UploadProductForm = ({ open, onClose }) => {
         if (res) {
           toast.success(res?.message);
           onClose();
+          handelFetchProduct();
         }
       })
       .catch((err) => {
@@ -189,7 +186,7 @@ const UploadProductForm = ({ open, onClose }) => {
                           accept="image/*"
                           onChange={(e) => {
                             onChange(e.target.files[0]);
-                            handelImageUplaod(e.target.files[0]);
+                            handelImageUpload(e.target.files[0]);
                           }}
                         />
                       </Box>

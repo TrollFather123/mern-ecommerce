@@ -6,12 +6,31 @@ const initialState = {
   isUserPending: true,
   user: null,
   isUserUpdatePending: true,
-  isResetPasswordPending:true
+  isResetPasswordPending: true,
+  isOtpPending: true,
 };
 
 export const signupUser = createAsyncThunk("signup", async (body) => {
   try {
     const res = await axiosInstance.post("/signup", body);
+    return res?.data;
+  } catch (err) {
+    throw err;
+  }
+});
+
+export const verifyOTP = createAsyncThunk("verifyOTP", async (body) => {
+  try {
+    const res = await axiosInstance.post(`/verify-otp`, body);
+    return res?.data;
+  } catch (err) {
+    throw err;
+  }
+});
+
+export const resendOTP = createAsyncThunk("resendOTP", async (body) => {
+  try {
+    const res = await axiosInstance.post(`/resend-otp`, body);
     return res?.data;
   } catch (err) {
     throw err;
@@ -58,7 +77,6 @@ export const updateUserRole = createAsyncThunk(
   }
 );
 
-
 export const resetPassword = createAsyncThunk("resetPassword", async (body) => {
   try {
     const res = await axiosInstance.post("/password-change-link-sent", body);
@@ -68,14 +86,17 @@ export const resetPassword = createAsyncThunk("resetPassword", async (body) => {
   }
 });
 
-export const changePassword = createAsyncThunk("changePassword", async ({id,body}) => {
-  try {
-    const res = await axiosInstance.put(`/change-password/${id}`, body);
-    return res?.data;
-  } catch (err) {
-    throw err;
+export const changePassword = createAsyncThunk(
+  "changePassword",
+  async ({ id, body }) => {
+    try {
+      const res = await axiosInstance.put(`/change-password/${id}`, body);
+      return res?.data;
+    } catch (err) {
+      throw err;
+    }
   }
-});
+);
 
 export const userSlice = createSlice({
   name: "user",
@@ -84,6 +105,9 @@ export const userSlice = createSlice({
     loggedOut: (state, action) => {
       state.user = action?.payload;
       destroyCookie(null, "token", {
+        path: "/",
+      });
+      destroyCookie(null, "userID", {
         path: "/",
       });
     },
@@ -97,7 +121,7 @@ export const userSlice = createSlice({
       .addCase(signupUser.fulfilled, (state, { payload }) => {
         if (payload.status === 201) {
           state.isUserPending = false;
-          setCookie(null, "token", payload?.token, {
+          setCookie(null, "userID", payload?.data?._id, {
             path: "/",
           });
         }
@@ -105,6 +129,36 @@ export const userSlice = createSlice({
       .addCase(signupUser.rejected, (state, action) => {
         state.isUserPending = true;
       })
+
+      // For verify otp
+      .addCase(verifyOTP.pending, (state, action) => {
+        state.isOtpPending = true;
+      })
+      .addCase(verifyOTP.fulfilled, (state, { payload }) => {
+        if (payload.status === 200) {
+          state.isOtpPending = false;
+          setCookie(null, "token", payload?.token, {
+            path: "/",
+          });
+        }
+      })
+      .addCase(verifyOTP.rejected, (state, action) => {
+        state.isOtpPending = true;
+      })
+
+      // For resend otp
+      .addCase(resendOTP.pending, (state, action) => {
+        state.isOtpPending = true;
+      })
+      .addCase(resendOTP.fulfilled, (state, { payload }) => {
+        if (payload.status === 200) {
+          state.isOtpPending = false;
+        }
+      })
+      .addCase(resendOTP.rejected, (state, action) => {
+        state.isOtpPending = true;
+      })
+
       // For Login
 
       .addCase(loginUser.pending, (state, action) => {
@@ -178,7 +232,6 @@ export const userSlice = createSlice({
       .addCase(resetPassword.rejected, (state, action) => {
         state.isResetPasswordPending = true;
       })
-
 
       // Change Password
 
