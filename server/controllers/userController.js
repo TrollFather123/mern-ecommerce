@@ -4,34 +4,54 @@ const bcrypt = require("bcryptjs");
 const transporter = require("../config/emailConfig");
 const generateOTP = require("../config/otpConfig");
 
-
 exports.signup = async (req, res, next) => {
   try {
     const { email, name, password } = req.body;
 
+    const imageURL = req.file ? req.file.path : null
+    console.log(req.body,req.file,"body")
+
     if (!name) {
-      throw new Error("name is required!");
+      return next(
+        res.status(401).json({
+          status: 401,
+          message: "name is required!",
+        })
+      );
     }
     if (!email) {
-      throw new Error("email is required!");
+      return next(
+        res.status(401).json({
+          status: 401,
+          message: "email is required!",
+        })
+      );
     }
     if (!password) {
-      throw new Error("password is required!");
+      return next(
+        res.status(401).json({
+          status: 401,
+          message: "password is required!",
+        })
+      );
     }
 
-    const otp = generateOTP()
+    const otp = generateOTP();
+
+
 
     const payload = {
       ...req.body,
+      profilePic:imageURL,
       otp,
-      isEmailVerified:false
-    }
+      isEmailVerified: false,
+    };
 
     const user = await User.create(payload);
 
     res.status(201).json({
       status: 201,
-      data:user,
+      data: user,
       message: "OTP has been sent to your email successfully!!!",
     });
   } catch (err) {
@@ -42,14 +62,19 @@ exports.signup = async (req, res, next) => {
   }
 };
 
-exports.resendOTP = async(req,res,next)=>{
-  try{
-    const {id} = req.body;
+exports.resendOTP = async (req, res, next) => {
+  try {
+    const { id } = req.body;
 
     const currentUser = await User.findById(id);
 
-    if(!currentUser){
-      throw new Error("User does not exist");
+    if (!currentUser) {
+      return next(
+        res.status(401).json({
+          status: 401,
+          message: "User does not exist",
+        })
+      );
     }
 
     const otp = generateOTP();
@@ -68,41 +93,50 @@ exports.resendOTP = async(req,res,next)=>{
       }
     );
 
-    const updateOTP = await User.findByIdAndUpdate(id,
-      {otp},
-      {new:true}
-    );
+    const updateOTP = await User.findByIdAndUpdate(id, { otp }, { new: true });
     res.status(200).json({
       status: 200,
       message: "OTP Resend successfully!!!",
     });
-
-
-  }catch (err) {
+  } catch (err) {
     res.status(401).json({
       status: 401,
       message: err.message,
     });
   }
-}
+};
 
-
-exports.verifyOTP = async(req,res,next)=>{
-  try{
-    const {otp,id} = req.body;
+exports.verifyOTP = async (req, res, next) => {
+  try {
+    const { otp, id } = req.body;
     // const {id} = req.params;
     const currentUser = await User.findById(id);
 
-    if(!currentUser){
-      throw new Error("User does not exist");
+    if (!currentUser) {
+      return next(
+        res.status(401).json({
+          status: 401,
+          message: "User does not exist",
+        })
+      );
     }
 
-    if(otp !== currentUser?.otp){
-      throw new Error("Please enter correct OTP!!");
+    if (otp !== currentUser?.otp) {
+      return next(
+        res.status(401).json({
+          status: 401,
+          message: "Please enter correct OTP!!",
+        })
+      );
     }
 
-    if(currentUser?.isEmailVerified){
-      throw new Error("Email is already verified!!");
+    if (currentUser?.isEmailVerified) {
+      return next(
+        res.status(401).json({
+          status: 401,
+          message: "Email is already verified!!",
+        })
+      );
     }
 
     const token = await jwt.sign(
@@ -113,25 +147,25 @@ exports.verifyOTP = async(req,res,next)=>{
       }
     );
 
-    const verifiedUser = await User.findByIdAndUpdate(id,
-      {isEmailVerified:true},
-      {new:true}
-    )
+    const verifiedUser = await User.findByIdAndUpdate(
+      id,
+      { isEmailVerified: true },
+      { new: true }
+    );
 
     res.status(200).json({
       status: 200,
-      data:verifiedUser,
+      data: verifiedUser,
       message: "Email verified successfully!!!",
-      token
+      token,
     });
-
-  }catch (err) {
+  } catch (err) {
     res.status(401).json({
       status: 401,
       message: err.message,
     });
   }
-}
+};
 
 exports.login = async (req, res, next) => {
   try {
@@ -140,7 +174,7 @@ exports.login = async (req, res, next) => {
 
     const checkPassword = await bcrypt.compare(password, currentUser.password);
 
-    if(!currentUser?.isEmailVerified){
+    if (!currentUser?.isEmailVerified) {
       throw new Error("Please verify your email to login!!");
     }
 
@@ -161,7 +195,7 @@ exports.login = async (req, res, next) => {
     res.status(200).json({
       status: 200,
       token,
-      data:currentUser,
+      data: currentUser,
       message: "Login Successfull!!",
     });
   } catch (err) {
@@ -235,10 +269,10 @@ exports.changePassword = async (req, res, next) => {
     );
 
     res.status(200).json({
-      status:200,
-      data:updatedUser,
-      message:"Password updated successfully!!!"
-    })
+      status: 200,
+      data: updatedUser,
+      message: "Password updated successfully!!!",
+    });
   } catch (err) {
     res.status(401).json({
       status: 401,

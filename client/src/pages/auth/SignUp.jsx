@@ -109,11 +109,13 @@ const SignUp = () => {
   });
 
   const formSubmit = (data) => {
-    setValue("profilePic", data.profilePic.name);
+    // setValue("profilePic", data.profilePic.name);
     const payload = {
       ...data,
       role:"GENERAL"
     }
+
+    console.log(data,"signup")
     dispatch(signupUser(payload))
       .unwrap()
       .then((response) => {

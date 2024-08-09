@@ -112,7 +112,7 @@ const EachProductCard = ({
           </Slider>
         )}
       </Box>
-      <Box className="product_content">
+      {/* <Box className="product_content">
         <Typography variant="h3">Product Name: {productName}</Typography>
         <Typography variant="h4">Brand Name: {brandName}</Typography>
         <Typography variant="h5">Category: {category}</Typography>
@@ -123,7 +123,7 @@ const EachProductCard = ({
         <Typography>
           Offer Price: {currencyINRConvertor(sellingPrice)}
         </Typography>
-      </Box>
+      </Box> */}
       {open && (
         <EditProductForm
           open={open}

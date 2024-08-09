@@ -17,6 +17,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loggedOut } from "../redux/slice/userSlice";
 import { useAuth } from "../hooks/useAuth";
+import { styled } from "@mui/material";
+
+const CustomAppBar = styled(AppBar)`
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  z-index: 99;
+`
 
 const pages = [
   // { name: "Products", pathname: "/products" },
@@ -67,7 +76,7 @@ function Header() {
   };
 
   return (
-    <AppBar position="static">
+    <CustomAppBar position="static">
       <Container fixed>
         <Toolbar disableGutters>
           <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
@@ -245,7 +254,7 @@ function Header() {
           </Box>
         </Toolbar>
       </Container>
-    </AppBar>
+    </CustomAppBar>
   );
 }
 export default Header;

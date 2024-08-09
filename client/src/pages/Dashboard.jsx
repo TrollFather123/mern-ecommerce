@@ -5,6 +5,7 @@ import { Link, Outlet } from "react-router-dom";
 
 const DashboardWrapper = styled(Box)`
   height: calc(100vh - 133px);
+  
   display: flex;
   flex-wrap: wrap;
   .dashboard_left {
@@ -20,6 +21,8 @@ const DashboardWrapper = styled(Box)`
     .main_body{
       padding: 20px;
       min-height: 100%;
+      height: calc(100vh - 133px);
+      overflow-y: auto;
     }
   }
   .admin_sec {

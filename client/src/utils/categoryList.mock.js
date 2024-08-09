@@ -55,5 +55,9 @@ export const categoryList = [
         value:"watches"
     },
 
-
+    {
+        id:12,
+        name:"trimmers",
+        value:"trimmers"
+    },
 ]

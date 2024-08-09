@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const transporter = require("../config/emailConfig");
+const path = require("path");
+const fs = require("fs")
 
 const userSchema = new mongoose.Schema(
   {
@@ -69,11 +71,22 @@ const sendMailOTP = async (email, otp) => {
 };
 
 userSchema.pre("save", async function (next) {
+  // For hash password
   if (this.isModified("password")) {
     this.password = await bcrypt.hash(this.password, 12);
   }
   this.confirmPassword = undefined;
+
+  // For Mail Sent
   sendMailOTP(this.email, this.otp);
+
+  // For Image Save in DB
+  const imagePath = path.resolve(this.profilePic);
+
+  if (!fs.existsSync(imagePath)) {
+    return res.status(404).json({ message: "File not found." });
+  }
+  this.profilePic = imagePath;
   next();
 });
 

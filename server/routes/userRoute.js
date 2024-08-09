@@ -1,10 +1,11 @@
 const userController = require("../controllers/userController")
 const express = require("express");
 const { authToken } = require("../middlewares/authToken");
+const upload = require("../config/multerConfig")
 
 const router = express.Router();
 
-router.post("/signup",userController.signup);
+router.post("/signup",upload.single("profilePic"),userController.signup);
 router.post("/verify-otp",userController.verifyOTP);
 router.post("/resend-otp",userController.resendOTP);
 router.post("/login",userController.login);

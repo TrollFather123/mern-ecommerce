@@ -75,3 +75,29 @@ exports.updateProduct = async (req, res, next) => {
     });
   }
 };
+
+
+exports.getCategoryProducts = async(req,res,next)=>{
+    try{
+      const categoryList = await Product.distinct("category");
+
+      const productListByCategory = [];
+      
+      for (let i = 0 ; i<= categoryList.length - 1; i++) {
+        const eachProduct = await Product.findOne({ category:categoryList[i] });
+        productListByCategory.push(eachProduct);
+      }
+      
+      res.status(200).json({
+        status:200,
+        data:productListByCategory,
+        message:"Products fetched Succuessfully!!"
+      })
+      
+    }catch (err) {
+    res.status(401).json({
+      status: 401,
+      message: err.message,
+    });
+  }
+}
