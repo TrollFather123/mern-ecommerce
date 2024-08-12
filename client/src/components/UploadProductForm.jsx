@@ -26,6 +26,7 @@ import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { createProduct } from "../redux/slice/productSlice";
 import useImageUpload from "../hooks/useImageUpload";
+import useImageConverter from "../utils/imageConverter";
 
 export const UploadProductFormWrapper = styled(Box)``;
 
@@ -77,27 +78,33 @@ const productSchema = yup.object().shape({
   brandName: yup.string().trim().required("brand name is Required!!!"),
   category: yup.string().trim().required("category is Required!!!"),
   productImages: yup
-    .mixed()
-    .required("Product Image is required")
-    .test("fileType", "Unsupported file format", (value) => {
-      if (!value) return false;
-      const supportedFormats = [
-        "image/jpeg",
-        "image/png",
-        "image/gif",
-        "image/webp",
-      ];
-      return supportedFormats.includes(value.type);
-    }),
+    .array()
+    .of(
+      yup
+        .mixed()
+        .required("Product Image is required")
+        .test("fileType", "Unsupported file format", (value) => {
+          if (!value) return false;
+          const supportedFormats = [
+            "image/jpeg",
+            "image/png",
+            "image/gif",
+            "image/webp",
+          ];
+          return supportedFormats.includes(value.type);
+        })
+    )
+    .min(1, "At least one product image is required")
+    .required("Product Images are required"),
   description: yup.string().trim().required("description is Required!!!"),
   price: yup.number().required("price is Required!!!"),
   sellingPrice: yup.number().required("selling price is Required!!!"),
 });
 
-const UploadProductForm = ({ open, onClose ,handelFetchProduct }) => {
+const UploadProductForm = ({ open, onClose, handelFetchProduct }) => {
   const dispatch = useDispatch();
 
-  const { handleSubmit, control } = useForm({
+  const { handleSubmit, control, watch, setValue, getValues } = useForm({
     resolver: yupResolver(productSchema),
     defaultValues: {
       brandName: "",
@@ -110,35 +117,56 @@ const UploadProductForm = ({ open, onClose ,handelFetchProduct }) => {
     },
   });
 
+  // const [getProductImages,setGetProductImages] = useState([])
+
+  // useEffect(()=>{
+  //   if(getValues("productImages")){
+  //     setGetProductImages(getValues)
+  //   }
+
+  // },[getValues])
+
+  // console.log(getProductImages,"getProductImages");
+
   const [imageList, setImageList] = useState([]);
 
-  const {imageUrl,handelImageUpload} = useImageUpload();
+  const { image, handleImageUpload } = useImageConverter();
 
+  useEffect(() => {
+    if (image?.length) {
+      setImageList(image);
+    }
+  }, [image]);
 
-  useEffect(()=>{
-      if(imageUrl){
-          setImageList((prev) => [...prev, imageUrl]);
-      }
-  },[imageUrl])
+  // const handleDeleteImage = (indexNumber) => {
+  //   const newProductImages = getProductImages.filter(
+  //     (_data, index) => index !== indexNumber
+  //   );
 
-  const handelDeleteImage = useCallback(
-    (indexNumber) => {
-      const filterData = imageList?.filter(
-        (data, index) => index !== indexNumber
-      );
+  //   setValue("productImages", newProductImages);
 
-      setImageList(filterData);
-    },
-    [imageList]
-  );
+  //   const updatedImageList = imageList.filter(
+  //     (_, index) => index !== indexNumber
+  //   );
 
-  const formSubmit = (data) => {
-    const payload = {
-      ...data,
-      productImages: imageList,
-    };
+  //   setImageList(updatedImageList);
+  // };
 
-    dispatch(createProduct(payload))
+  const formSubmit = (productData) => {
+    const formData = new FormData();
+
+    formData.append("brandName", productData.brandName);
+    formData.append("productName", productData.productName);
+    formData.append("category", productData.category);
+    formData.append("description", productData.description);
+    formData.append("price", productData.price);
+    formData.append("sellingPrice", productData.sellingPrice);
+
+    productData.productImages.forEach((file, index) => {
+      formData.append("productImages", file);
+    });
+
+    dispatch(createProduct(formData))
       .unwrap()
       .then((res) => {
         if (res) {
@@ -183,10 +211,16 @@ const UploadProductForm = ({ open, onClose ,handelFetchProduct }) => {
                       <Box className="product_img">
                         <input
                           type="file"
+                          multiple
                           accept="image/*"
                           onChange={(e) => {
-                            onChange(e.target.files[0]);
-                            handelImageUpload(e.target.files[0]);
+                            const files = Array.from(e.target.files);
+                            const concatedFiles = [
+                              // ...getProductImages,
+                              ...files,
+                            ];
+                            onChange(concatedFiles);
+                            handleImageUpload(files);
                           }}
                         />
                       </Box>
@@ -200,11 +234,11 @@ const UploadProductForm = ({ open, onClose ,handelFetchProduct }) => {
                           {imageList?.map((image, index) => (
                             <ListItem key={image}>
                               <figure>
-                                <IconButton
-                                  onClick={() => handelDeleteImage(index)}
+                                {/* <IconButton
+                                  onClick={() => handleDeleteImage(index)}
                                 >
                                   <DeleteIcon sx={{ color: "#fff" }} />
-                                </IconButton>
+                                </IconButton> */}
                                 <img src={image} alt="upload image" />
                               </figure>
                             </ListItem>

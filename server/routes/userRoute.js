@@ -5,6 +5,9 @@ const upload = require("../config/multerConfig")
 
 const router = express.Router();
 
+
+
+
 router.post("/signup",upload.single("profilePic"),userController.signup);
 router.post("/verify-otp",userController.verifyOTP);
 router.post("/resend-otp",userController.resendOTP);

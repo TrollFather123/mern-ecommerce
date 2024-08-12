@@ -8,8 +8,21 @@ exports.signup = async (req, res, next) => {
   try {
     const { email, name, password } = req.body;
 
-    const imageURL = req.file ? req.file.path : null
-    console.log(req.body,req.file,"body")
+    // console.log(req.body,req.file,"controller")
+    if(!req?.file){
+      return next(
+        res.status(401).json({
+          status: 401,
+          message: "file is required!",
+        })
+      );
+    }
+
+    // const imageURL = req.file ? req.file.path : null;
+
+
+    const profilePicUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+
 
     if (!name) {
       return next(
@@ -42,8 +55,9 @@ exports.signup = async (req, res, next) => {
 
     const payload = {
       ...req.body,
-      profilePic:imageURL,
+      profilePic:profilePicUrl,
       otp,
+      role:"GENERAL",
       isEmailVerified: false,
     };
 

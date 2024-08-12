@@ -31,13 +31,13 @@ import {
   UplaodProductWrapper,
   UploadProductFormWrapper,
 } from "./UploadProductForm";
-import useImageUpload from "../hooks/useImageUpload";
+import useImageConverter from "../utils/imageConverter";
 
 const productSchema = yup.object().shape({
   productName: yup.string().trim().required("product name is Required!!!"),
   brandName: yup.string().trim().required("brand name is Required!!!"),
   category: yup.string().trim().required("category is Required!!!"),
-  productImages: yup.mixed(),
+  productImages: yup.array().of(yup.mixed()),
   description: yup.string().trim().required("description is Required!!!"),
   price: yup.number().required("price is Required!!!"),
   sellingPrice: yup.number().required("selling price is Required!!!"),
@@ -48,7 +48,7 @@ const EditProductForm = ({ open, onClose, _id, fetchAllProducts }) => {
 
   const { isSingleProductFetching } = useSelector((s) => s.product);
 
-  const { handleSubmit, control, setValue } = useForm({
+  const { handleSubmit, control, setValue,watch } = useForm({
     resolver: yupResolver(productSchema),
     defaultValues: {
       brandName: "",
@@ -63,21 +63,21 @@ const EditProductForm = ({ open, onClose, _id, fetchAllProducts }) => {
 
   const [imageList, setImageList] = useState([]);
 
-  const { imageUrl, handelImageUpload } = useImageUpload();
+  const { image, handleImageUpload } = useImageConverter();
 
   useEffect(() => {
-    if (imageUrl) {
-      setImageList((prev) => [...prev, imageUrl]);
+    if (image?.length) {
+      setImageList((prevData) => [...prevData,image]);
     }
-  }, [imageUrl]);
+  }, [image]);
 
   const handelDeleteImage = useCallback(
     (indexNumber) => {
       const filterData = imageList?.filter(
         (data, index) => index !== indexNumber
       );
-
       setImageList(filterData);
+
     },
     [imageList]
   );
@@ -95,6 +95,7 @@ const EditProductForm = ({ open, onClose, _id, fetchAllProducts }) => {
             setValue("price", res?.data?.price);
             setValue("sellingPrice", res?.data?.sellingPrice);
             setValue("category", res?.data?.category);
+
             setImageList(res?.data?.productImages);
           }
         })
@@ -106,13 +107,29 @@ const EditProductForm = ({ open, onClose, _id, fetchAllProducts }) => {
     }
   }, [_id, dispatch]);
 
-  const formSubmit = (data) => {
-    const payload = {
-      ...data,
-      productImages: imageList,
-    };
 
-    dispatch(updateProduct({ id: _id, body: payload }))
+
+
+
+  const formSubmit = (productData) => {
+
+
+    
+
+    const formData = new FormData();
+
+    formData.append("brandName", productData.brandName);
+    formData.append("productName", productData.productName);
+    formData.append("category", productData.category);
+    formData.append("description", productData.description);
+    formData.append("price", productData.price);
+    formData.append("sellingPrice", productData.sellingPrice);
+
+    productData.productImages.forEach((file, index) => {
+      formData.append("productImages", file);
+    });
+
+    dispatch(updateProduct({ id: _id, body: formData }))
       .unwrap()
       .then((res) => {
         if (res) {
@@ -123,6 +140,7 @@ const EditProductForm = ({ open, onClose, _id, fetchAllProducts }) => {
       })
       .catch((err) => {
         if (err) {
+          console.log(err)
           toast.error(err?.message);
         }
       });
@@ -158,14 +176,16 @@ const EditProductForm = ({ open, onClose, _id, fetchAllProducts }) => {
                     }) => (
                       <UplaodProductWrapper>
                         <Box className="product_img">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => {
-                              onChange(e.target.files[0]);
-                              handelImageUpload(e.target.files[0]);
-                            }}
-                          />
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          onChange={(e) => {
+                            const uploadedFiles = Array.from(e.target.files);
+                            onChange(uploadedFiles);
+                            handleImageUpload(uploadedFiles);
+                          }}
+                        />
                         </Box>
                         {invalid && (
                           <Typography sx={{ color: "red" }}>

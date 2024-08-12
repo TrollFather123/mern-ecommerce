@@ -70,6 +70,8 @@ function Header() {
 
   const { user } = useAuth();
 
+  console.log(user,"user")
+
   const handelLogout = () => {
     dispatch(loggedOut(null));
     navigate("/auth/login");
@@ -175,6 +177,7 @@ function Header() {
                     onClick={handleOpenUserMenu}
                     sx={{ p: 0, borderRadius: 0 }}
                   >
+            
                     <Avatar alt="Remy Sharp" src={user?.profilePic} />{" "}
                     {user && (
                       <Typography

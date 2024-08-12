@@ -7,10 +7,27 @@ exports.uploadProducts = async (req, res, next) => {
     const user = await User.findOne({ _id: sessionId });
 
     if (user?.role !== "ADMIN") {
-      throw new Error("Permission Denied!!");
+      return next(
+        res.status(400).json({ error: "Permission Denied!!" })
+      );
     }
 
-    const product = await Product.create(req.body);
+    if (!req.files || req.files.length === 0) {
+      return next(
+        res.status(400).json({ error: "No files uploaded" })
+      );
+  }
+
+    const productImageUrls = req.files.map((file) => {
+      return `${req.protocol}://${req.get("host")}/uploads/${file.filename}`;
+    });
+
+    const payload = {
+      ...req.body,
+      productImages:productImageUrls
+    }
+
+    const product = await Product.create(payload);
 
     res.status(201).json({
       status: 201,
@@ -60,7 +77,18 @@ exports.getSingleProduct = async (req, res, next) => {
 exports.updateProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const product = await Product.findByIdAndUpdate(id, req.body, {
+  const currentProduct = await Product.findById(id);
+
+    const productImageUrls = req.files.map((file) => {
+      return `${req.protocol}://${req.get("host")}/uploads/${file.filename}`;
+    });
+
+    const payload = {
+      ...req.body,
+      productImages:[...currentProduct?.productImages,...productImageUrls]
+    }
+
+    const product = await Product.findByIdAndUpdate(id, payload, {
       new: true,
     });
     res.status(200).json({
@@ -76,28 +104,26 @@ exports.updateProduct = async (req, res, next) => {
   }
 };
 
+exports.getCategoryProducts = async (req, res, next) => {
+  try {
+    const categoryList = await Product.distinct("category");
 
-exports.getCategoryProducts = async(req,res,next)=>{
-    try{
-      const categoryList = await Product.distinct("category");
+    const productListByCategory = [];
 
-      const productListByCategory = [];
-      
-      for (let i = 0 ; i<= categoryList.length - 1; i++) {
-        const eachProduct = await Product.findOne({ category:categoryList[i] });
-        productListByCategory.push(eachProduct);
-      }
-      
-      res.status(200).json({
-        status:200,
-        data:productListByCategory,
-        message:"Products fetched Succuessfully!!"
-      })
-      
-    }catch (err) {
+    for (let i = 0; i <= categoryList.length - 1; i++) {
+      const eachProduct = await Product.findOne({ category: categoryList[i] });
+      productListByCategory.push(eachProduct);
+    }
+
+    res.status(200).json({
+      status: 200,
+      data: productListByCategory,
+      message: "Products fetched Succuessfully!!",
+    });
+  } catch (err) {
     res.status(401).json({
       status: 401,
       message: err.message,
     });
   }
-}
+};

@@ -80,13 +80,6 @@ userSchema.pre("save", async function (next) {
   // For Mail Sent
   sendMailOTP(this.email, this.otp);
 
-  // For Image Save in DB
-  const imagePath = path.resolve(this.profilePic);
-
-  if (!fs.existsSync(imagePath)) {
-    return res.status(404).json({ message: "File not found." });
-  }
-  this.profilePic = imagePath;
   next();
 });
 

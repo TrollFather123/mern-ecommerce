@@ -15,7 +15,7 @@ import { Link, useNavigate } from "react-router-dom";
 import * as yup from "yup";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import {  useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import useImageUpload from "../../utils/imageConverter";
 import { signupUser } from "../../redux/slice/userSlice";
 import { toast } from "react-toastify";
@@ -88,7 +88,7 @@ const userSchema = yup.object().shape({
 });
 
 const SignUp = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { image, handleImageUpload } = useImageUpload();
@@ -109,20 +109,23 @@ const SignUp = () => {
   });
 
   const formSubmit = (data) => {
-    // setValue("profilePic", data.profilePic.name);
-    const payload = {
-      ...data,
-      role:"GENERAL"
+    const formData = new FormData();
+
+    formData.append("name", data.name);
+    formData.append("email", data.email);
+    formData.append("password", data.password);
+    formData.append("confirmPassword", data.confirmPassword);
+
+    if (data.profilePic) {
+      formData.append("profilePic", data.profilePic);
     }
 
-    console.log(data,"signup")
-    dispatch(signupUser(payload))
+    dispatch(signupUser(formData))
       .unwrap()
       .then((response) => {
         if (response && response.message) {
           toast.success(response.message);
           navigate(`/auth/verify-otp`);
-    
         }
       })
       .catch((err) => {
