@@ -24,6 +24,7 @@ import { categoryList } from "../utils/categoryList.mock";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  deleteProductImage,
   getSingleProduct,
   updateProduct,
 } from "../redux/slice/productSlice";
@@ -71,16 +72,18 @@ const EditProductForm = ({ open, onClose, _id, fetchAllProducts }) => {
     }
   }, [image]);
 
-  const handelDeleteImage = useCallback(
-    (indexNumber) => {
+  const handelDeleteImage = 
+    (indexNumber,selectedImage) => {
       const filterData = imageList?.filter(
         (data, index) => index !== indexNumber
       );
       setImageList(filterData);
-
-    },
-    [imageList]
-  );
+      const payload = {
+        id:_id,
+        selectedImage
+      }
+      dispatch(deleteProductImage(payload))
+    }
 
   useEffect(() => {
     if (_id) {
@@ -112,9 +115,6 @@ const EditProductForm = ({ open, onClose, _id, fetchAllProducts }) => {
 
 
   const formSubmit = (productData) => {
-
-
-    
 
     const formData = new FormData();
 
@@ -198,7 +198,7 @@ const EditProductForm = ({ open, onClose, _id, fetchAllProducts }) => {
                               <ListItem key={image}>
                                 <figure>
                                   <IconButton
-                                    onClick={() => handelDeleteImage(index)}
+                                    onClick={() => handelDeleteImage(index,image)}
                                   >
                                     <DeleteIcon sx={{ color: "#fff" }} />
                                   </IconButton>

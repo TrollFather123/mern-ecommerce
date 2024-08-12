@@ -7,16 +7,12 @@ exports.uploadProducts = async (req, res, next) => {
     const user = await User.findOne({ _id: sessionId });
 
     if (user?.role !== "ADMIN") {
-      return next(
-        res.status(400).json({ error: "Permission Denied!!" })
-      );
+      return next(res.status(400).json({ error: "Permission Denied!!" }));
     }
 
     if (!req.files || req.files.length === 0) {
-      return next(
-        res.status(400).json({ error: "No files uploaded" })
-      );
-  }
+      return next(res.status(400).json({ error: "No files uploaded" }));
+    }
 
     const productImageUrls = req.files.map((file) => {
       return `${req.protocol}://${req.get("host")}/uploads/${file.filename}`;
@@ -24,8 +20,8 @@ exports.uploadProducts = async (req, res, next) => {
 
     const payload = {
       ...req.body,
-      productImages:productImageUrls
-    }
+      productImages: productImageUrls,
+    };
 
     const product = await Product.create(payload);
 
@@ -77,7 +73,7 @@ exports.getSingleProduct = async (req, res, next) => {
 exports.updateProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
-  const currentProduct = await Product.findById(id);
+    const currentProduct = await Product.findById(id);
 
     const productImageUrls = req.files.map((file) => {
       return `${req.protocol}://${req.get("host")}/uploads/${file.filename}`;
@@ -85,8 +81,8 @@ exports.updateProduct = async (req, res, next) => {
 
     const payload = {
       ...req.body,
-      productImages:[...currentProduct?.productImages,...productImageUrls]
-    }
+      productImages: [...currentProduct?.productImages, ...productImageUrls],
+    };
 
     const product = await Product.findByIdAndUpdate(id, payload, {
       new: true,
@@ -96,6 +92,42 @@ exports.updateProduct = async (req, res, next) => {
       data: product,
       message: "Product Updated successfully!!",
     });
+  } catch (err) {
+    res.status(401).json({
+      status: 401,
+      message: err.message,
+    });
+  }
+};
+
+exports.deleteImage = async (req, res, next) => {
+  try {
+    console.log(req.body,"id")
+    const { image ,id} = req.body;
+
+    const currentProduct = await Product.findById(id);
+
+    console.log(currentProduct,"currentProduct")
+
+    const deletedImages = currentProduct?.productImages?.filter(
+      (_data, index) => _data !== image
+    );
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      {
+        productImages: deletedImages,
+      },
+      {
+        new: true,
+      }
+    );
+    res.status(200).json({
+      status: 200,
+      data: updatedProduct,
+      message: "Image Deleted successfully!!",
+    });
+
   } catch (err) {
     res.status(401).json({
       status: 401,

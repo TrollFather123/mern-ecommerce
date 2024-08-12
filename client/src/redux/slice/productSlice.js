@@ -4,8 +4,9 @@ import { axiosInstance } from "../helper/helper";
 const initialState = {
   isProductCreatePending: true,
   isProductFetchPending: true,
-  isSingleProductFetching:true,
-  isUpdateProductPending:true,
+  isSingleProductFetching: true,
+  isUpdateProductPending: true,
+  isProductImageDeletePending:true,
   allProducts: null,
 };
 
@@ -27,25 +28,41 @@ export const getProducts = createAsyncThunk("getProduct", async () => {
   }
 });
 
-export const getSingleProduct = createAsyncThunk("getSingleProduct", async (id) => {
-  try {
-    const res = await axiosInstance.get(`/products/${id}`);
-    return res?.data;
-  } catch (err) {
-    throw err;
+export const getSingleProduct = createAsyncThunk(
+  "getSingleProduct",
+  async (id) => {
+    try {
+      const res = await axiosInstance.get(`/products/${id}`);
+      return res?.data;
+    } catch (err) {
+      throw err;
+    }
   }
-});
+);
 
-export const updateProduct = createAsyncThunk("updateProduct", async ({id,body}) => {
-  try {
-    const res = await axiosInstance.put(`/products/${id}`,body);
-    return res?.data;
-  } catch (err) {
-    throw err;
+export const updateProduct = createAsyncThunk(
+  "updateProduct",
+  async ({ id, body }) => {
+    try {
+      const res = await axiosInstance.put(`/products/${id}`, body);
+      return res?.data;
+    } catch (err) {
+      throw err;
+    }
   }
-});
+);
 
-
+export const deleteProductImage = createAsyncThunk(
+  "deleteProductImage",
+  async ({body }) => {
+    try {
+      const res = await axiosInstance.put(`/delete-product-image`, body);
+      return res?.data;
+    } catch (err) {
+      throw err;
+    }
+  }
+);
 
 export const productSlice = createSlice({
   name: "products",
@@ -93,18 +110,31 @@ export const productSlice = createSlice({
         state.isSingleProductFetching = true;
       })
 
-        // For Update Product
-        .addCase(updateProduct.pending, (state, action) => {
-          state.isUpdateProductPending = true;
-        })
-        .addCase(updateProduct.fulfilled, (state, { payload }) => {
-          if (payload.status === 200) {
-            state.isUpdateProductPending = false;
-          }
-        })
-        .addCase(updateProduct.rejected, (state, action) => {
-          state.isUpdateProductPending = true;
-        })
+      // For Update Product
+      .addCase(updateProduct.pending, (state, action) => {
+        state.isUpdateProductPending = true;
+      })
+      .addCase(updateProduct.fulfilled, (state, { payload }) => {
+        if (payload.status === 200) {
+          state.isUpdateProductPending = false;
+        }
+      })
+      .addCase(updateProduct.rejected, (state, action) => {
+        state.isUpdateProductPending = true;
+      })
+
+      // For Delete Product Image
+      .addCase(deleteProductImage.pending, (state, action) => {
+        state.isProductImageDeletePending = true;
+      })
+      .addCase(deleteProductImage.fulfilled, (state, { payload }) => {
+        if (payload.status === 200) {
+          state.isProductImageDeletePending = false;
+        }
+      })
+      .addCase(deleteProductImage.rejected, (state, action) => {
+        state.isProductImageDeletePending = true;
+      });
   },
 });
 
