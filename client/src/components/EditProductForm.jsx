@@ -49,7 +49,7 @@ const EditProductForm = ({ open, onClose, _id, fetchAllProducts }) => {
 
   const { isSingleProductFetching } = useSelector((s) => s.product);
 
-  const { handleSubmit, control, setValue,watch } = useForm({
+  const { handleSubmit, control, setValue } = useForm({
     resolver: yupResolver(productSchema),
     defaultValues: {
       brandName: "",
@@ -68,22 +68,26 @@ const EditProductForm = ({ open, onClose, _id, fetchAllProducts }) => {
 
   useEffect(() => {
     if (image?.length) {
-      setImageList((prevData) => [...prevData,image]);
+      setImageList((prevData) => [...prevData, image]);
     }
   }, [image]);
 
-  const handelDeleteImage = 
-    (indexNumber,selectedImage) => {
-      const filterData = imageList?.filter(
-        (data, index) => index !== indexNumber
-      );
-      setImageList(filterData);
-      const payload = {
-        id:_id,
-        selectedImage
-      }
-      dispatch(deleteProductImage(payload))
-    }
+  const handelDeleteImage = (indexNumber, selectedImage) => {
+    const filterData = imageList?.filter(
+      (data, index) => index !== indexNumber
+    );
+    setImageList(filterData);
+    const payload = {
+      id: _id,
+      image: selectedImage,
+    };
+    dispatch(deleteProductImage(payload))
+      .unwrap()
+      .then((res) => {
+        fetchAllProducts();
+        toast.success(res?.message);
+      });
+  };
 
   useEffect(() => {
     if (_id) {
@@ -110,12 +114,7 @@ const EditProductForm = ({ open, onClose, _id, fetchAllProducts }) => {
     }
   }, [_id, dispatch]);
 
-
-
-
-
   const formSubmit = (productData) => {
-
     const formData = new FormData();
 
     formData.append("brandName", productData.brandName);
@@ -140,7 +139,7 @@ const EditProductForm = ({ open, onClose, _id, fetchAllProducts }) => {
       })
       .catch((err) => {
         if (err) {
-          console.log(err)
+          console.log(err);
           toast.error(err?.message);
         }
       });
@@ -176,16 +175,16 @@ const EditProductForm = ({ open, onClose, _id, fetchAllProducts }) => {
                     }) => (
                       <UplaodProductWrapper>
                         <Box className="product_img">
-                        <input
-                          type="file"
-                          multiple
-                          accept="image/*"
-                          onChange={(e) => {
-                            const uploadedFiles = Array.from(e.target.files);
-                            onChange(uploadedFiles);
-                            handleImageUpload(uploadedFiles);
-                          }}
-                        />
+                          <input
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            onChange={(e) => {
+                              const uploadedFiles = Array.from(e.target.files);
+                              onChange(uploadedFiles);
+                              handleImageUpload(uploadedFiles);
+                            }}
+                          />
                         </Box>
                         {invalid && (
                           <Typography sx={{ color: "red" }}>
@@ -198,7 +197,9 @@ const EditProductForm = ({ open, onClose, _id, fetchAllProducts }) => {
                               <ListItem key={image}>
                                 <figure>
                                   <IconButton
-                                    onClick={() => handelDeleteImage(index,image)}
+                                    onClick={() =>
+                                      handelDeleteImage(index, image)
+                                    }
                                   >
                                     <DeleteIcon sx={{ color: "#fff" }} />
                                   </IconButton>

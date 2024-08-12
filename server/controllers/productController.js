@@ -102,12 +102,10 @@ exports.updateProduct = async (req, res, next) => {
 
 exports.deleteImage = async (req, res, next) => {
   try {
-    console.log(req.body,"id")
+   
     const { image ,id} = req.body;
-
     const currentProduct = await Product.findById(id);
 
-    console.log(currentProduct,"currentProduct")
 
     const deletedImages = currentProduct?.productImages?.filter(
       (_data, index) => _data !== image

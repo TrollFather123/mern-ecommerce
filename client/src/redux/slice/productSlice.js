@@ -54,7 +54,7 @@ export const updateProduct = createAsyncThunk(
 
 export const deleteProductImage = createAsyncThunk(
   "deleteProductImage",
-  async ({body }) => {
+  async (body) => {
     try {
       const res = await axiosInstance.put(`/delete-product-image`, body);
       return res?.data;
