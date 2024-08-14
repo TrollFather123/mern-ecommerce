@@ -3,6 +3,7 @@ import React from "react";
 import { useAuth } from "../hooks/useAuth";
 import { Link, Outlet } from "react-router-dom";
 
+
 const DashboardWrapper = styled(Box)`
   height: calc(100vh - 133px);
   
@@ -52,6 +53,9 @@ const navList = [
 
 const Dashboard = () => {
   const { user } = useAuth();
+
+
+
 
   return (
     <DashboardWrapper>

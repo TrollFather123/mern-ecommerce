@@ -12,4 +12,6 @@ router.put("/products/:id", authToken,upload.array("productImages", 10), product
 router.put("/delete-product-image",productController.deleteImage),
 router.get("/single-category-product",productController.getCategoryProducts);
 
+router.get("/product-stats",productController.getProductStats)
+
 module.exports = router;

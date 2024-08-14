@@ -93,7 +93,10 @@ const SignUp = () => {
 
   const { image, handleImageUpload } = useImageUpload();
 
+  console.log(image,"image")
+
   const onFileChange = (file) => {
+    console.log(file,"file")
     handleImageUpload(file);
   };
 
@@ -158,11 +161,11 @@ const SignUp = () => {
                         type="file"
                         accept="image/*"
                         onChange={(e) => {
-                          onFileChange(e.target.files[0]);
+                          onFileChange(e.target.files);
                           onChange(e.target.files[0]);
                         }}
                       />
-                      <img src={image || SigninAvatar} alt="avatar" />
+                      <img src={!image.length ? SigninAvatar : image[0]} alt="avatar" />
                     </Box>
                     {invalid && (
                       <Typography sx={{ color: "red" }}>

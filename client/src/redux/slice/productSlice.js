@@ -7,7 +7,9 @@ const initialState = {
   isSingleProductFetching: true,
   isUpdateProductPending: true,
   isProductImageDeletePending:true,
-  allProducts: null,
+  isSingleCategoryProductFetching:true,
+  allProducts: [],
+  singleCategoryProductList:[]
 };
 
 export const createProduct = createAsyncThunk("createProduct", async (body) => {
@@ -57,6 +59,18 @@ export const deleteProductImage = createAsyncThunk(
   async (body) => {
     try {
       const res = await axiosInstance.put(`/delete-product-image`, body);
+      return res?.data;
+    } catch (err) {
+      throw err;
+    }
+  }
+);
+
+export const getSingleProductByCategory = createAsyncThunk(
+  "getSingleProductByCategory",
+  async () => {
+    try {
+      const res = await axiosInstance.get(`/single-category-product`);
       return res?.data;
     } catch (err) {
       throw err;
@@ -134,6 +148,21 @@ export const productSlice = createSlice({
       })
       .addCase(deleteProductImage.rejected, (state, action) => {
         state.isProductImageDeletePending = true;
+      })
+
+
+       // For get single category product
+       .addCase(getSingleProductByCategory.pending, (state, action) => {
+        state.isSingleCategoryProductFetching = true;
+      })
+      .addCase(getSingleProductByCategory.fulfilled, (state, { payload }) => {
+        if (payload.status === 200) {
+          state.isSingleCategoryProductFetching = false;
+          state.singleCategoryProductList = payload?.data
+        }
+      })
+      .addCase(getSingleProductByCategory.rejected, (state, action) => {
+        state.isSingleCategoryProductFetching = true;
       });
   },
 });

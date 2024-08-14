@@ -22,13 +22,13 @@ const useImageConverter = () => {
       });
   
       // Wait for all FileReader operations to complete
-      // Promise.all(readers)
-      //   .then(() => {
-      //     console.log("All files have been read successfully.");
-      //   })
-      //   .catch((error) => {
-      //     console.error("Error reading files:", error);
-      //   });
+      Promise.all(readers)
+        .then(() => {
+          console.log("All files have been read successfully.");
+        })
+        .catch((error) => {
+          console.error("Error reading files:", error);
+        });
     }
   };
   

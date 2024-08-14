@@ -43,6 +43,7 @@ exports.getAllProducts = async (req, res, next) => {
     const products = await Product.find();
     res.status(200).json({
       status: 200,
+      count: products?.length,
       data: products,
       message: "Product fetched successfully!!",
     });
@@ -102,10 +103,8 @@ exports.updateProduct = async (req, res, next) => {
 
 exports.deleteImage = async (req, res, next) => {
   try {
-   
-    const { image ,id} = req.body;
+    const { image, id } = req.body;
     const currentProduct = await Product.findById(id);
-
 
     const deletedImages = currentProduct?.productImages?.filter(
       (_data, index) => _data !== image
@@ -125,7 +124,6 @@ exports.deleteImage = async (req, res, next) => {
       data: updatedProduct,
       message: "Image Deleted successfully!!",
     });
-
   } catch (err) {
     res.status(401).json({
       status: 401,
@@ -148,6 +146,51 @@ exports.getCategoryProducts = async (req, res, next) => {
     res.status(200).json({
       status: 200,
       data: productListByCategory,
+      message: "Products fetched Succuessfully!!",
+    });
+  } catch (err) {
+    res.status(401).json({
+      status: 401,
+      message: err.message,
+    });
+  }
+};
+
+exports.getProductStats = async (req, res) => {
+  try {
+    const { brand } = req.query;
+
+    console.log(brand, "brand");
+    const products = await Product.aggregate([
+      { $match: { price: { $gte: 2000 } } },
+      {
+        $group: {
+          _id: "$brandName",
+          avgPrice: { $avg: "$price" },
+          maxPrice: { $max: "$price" },
+          minPrice: { $min: "$price" },
+          products: { $push: "$productName" },
+          totalProducts: { $sum: 1 },
+        },
+      },
+      {
+        $addFields: { brandName: "$_id" },
+      },
+      {
+        $project: { _id: 0 },
+      },
+      {
+        $sort: { maxPrice: -1 },
+      },
+      {
+        $match: { brandName: { $eq: brand } },
+      },
+    ]);
+
+    res.status(200).json({
+      status: 200,
+      count: products?.length,
+      data: products,
       message: "Products fetched Succuessfully!!",
     });
   } catch (err) {

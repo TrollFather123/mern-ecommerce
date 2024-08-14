@@ -9,7 +9,7 @@ exports.signup = async (req, res, next) => {
     const { email, name, password } = req.body;
 
     // console.log(req.body,req.file,"controller")
-    if(!req?.file){
+    if (!req?.file) {
       return next(
         res.status(401).json({
           status: 401,
@@ -20,9 +20,9 @@ exports.signup = async (req, res, next) => {
 
     // const imageURL = req.file ? req.file.path : null;
 
-
-    const profilePicUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-
+    const profilePicUrl = `${req.protocol}://${req.get("host")}/uploads/${
+      req.file.filename
+    }`;
 
     if (!name) {
       return next(
@@ -51,13 +51,11 @@ exports.signup = async (req, res, next) => {
 
     const otp = generateOTP();
 
-
-
     const payload = {
       ...req.body,
-      profilePic:profilePicUrl,
+      profilePic: profilePicUrl,
       otp,
-      role:"GENERAL",
+      role: "GENERAL",
       isEmailVerified: false,
     };
 
@@ -164,6 +162,7 @@ exports.verifyOTP = async (req, res, next) => {
     const verifiedUser = await User.findByIdAndUpdate(
       id,
       { isEmailVerified: true },
+      { otp: undefined },
       { new: true }
     );
 
