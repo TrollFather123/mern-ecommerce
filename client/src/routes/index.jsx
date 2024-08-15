@@ -5,6 +5,12 @@ import Login from "../pages/auth/Login";
 import SignUp from "../pages/auth/SignUp";
 import AuthGuard from "../components/AuthGuard";
 import About from "../pages/About";
+import Dashboard from "../pages/Dashboard";
+import AllUsers from "../pages/AllUsers";
+import AllProducts from "../pages/AllProducts";
+import ForgotPassword from "../pages/auth/ForgotPassword";
+import ResetPassword from "../pages/auth/ResetPassword";
+import VerifyOTP from "../pages/auth/VerifyOTP";
 
 const router = createBrowserRouter([
   {
@@ -28,6 +34,24 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "dashboard",
+        element: (
+          <AuthGuard>
+            <Dashboard />
+           </AuthGuard>
+        ),
+        children:[
+          {
+            path:"all-users",
+            element:<AllUsers/>
+          },
+          {
+            path:"products",
+            element:<AllProducts/>
+          },
+        ]
+      },
+      {
         path: "auth/login",
         element: <Login />,
       },
@@ -35,6 +59,18 @@ const router = createBrowserRouter([
         path: "auth/signup",
         element: <SignUp />,
       },
+      {
+        path: "auth/verify-otp",
+        element: <VerifyOTP />,
+      },
+      {
+        path: "auth/reset-password",
+        element: <ResetPassword />,
+      },
+      {
+        path:"auth/forgot-password/:id",
+        element:<ForgotPassword/>
+      }
     ],
   },
 ]);

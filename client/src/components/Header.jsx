@@ -13,13 +13,37 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { getCurrentUser, loggedOut } from "../redux/slice/userSlice";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { loggedOut } from "../redux/slice/userSlice";
 import { useAuth } from "../hooks/useAuth";
+import { styled } from "@mui/material";
 
-const pages = ["Products", "Pricing", "Blog","About"];
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
+const CustomAppBar = styled(AppBar)`
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  z-index: 99;
+`
+
+const pages = [
+  // { name: "Products", pathname: "/products" },
+  // { name: "Pricing", pathname: "/pricing" },
+  // { name: "Blog", pathname: "/blog" },
+  { name: "About", pathname: "/about" },
+];
+
+const settings = [
+  { name: "Profile", pathname: "/profile" },
+  { name: "Account", pathname: "/account" },
+  { name: "Dashboard", pathname: "/dashboard/products" },
+];
+
+const settingsForGeneralUser = [
+  { name: "Profile", pathname: "/profile" },
+  { name: "Account", pathname: "/account" },
+];
 
 function Header() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -43,19 +67,18 @@ function Header() {
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
-  
-  
 
-  const { user } = useAuth()
+  const { user } = useAuth();
+
+  console.log(user,"user")
 
   const handelLogout = () => {
-    dispatch(loggedOut())
+    dispatch(loggedOut(null));
     navigate("/auth/login");
-    console.log("hit")
   };
 
   return (
-    <AppBar position="static">
+    <CustomAppBar position="static">
       <Container fixed>
         <Toolbar disableGutters>
           <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
@@ -107,8 +130,10 @@ function Header() {
               }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
+                <MenuItem key={page?.name}>
+                  <Link to={page?.pathname}>
+                    <Typography textAlign="center">{page?.name}</Typography>
+                  </Link>
                 </MenuItem>
               ))}
             </Menu>
@@ -135,49 +160,80 @@ function Header() {
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
               <Button
-                key={page}
-                onClick={handleCloseNavMenu}
+                key={page?.name}
+                onClick={() => navigate(page?.pathname)}
                 sx={{ my: 2, color: "white", display: "block" }}
               >
-                {page}
+                {page?.name}
               </Button>
             ))}
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton
-                onClick={handleOpenUserMenu}
-                sx={{ p: 0, borderRadius: 0 }}
-              >
-                <Avatar alt="Remy Sharp" src={user?.profilePic} />{" "}
-                {user && (
-                  <Typography variant="caption">Hello {user?.name}</Typography>
-                )}
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: "45px" }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
+            {user?._id && (
+              <>
+                <Tooltip title="Open settings">
+                  <IconButton
+                    onClick={handleOpenUserMenu}
+                    sx={{ p: 0, borderRadius: 0 }}
+                  >
+            
+                    <Avatar alt="Remy Sharp" src={user?.profilePic} />{" "}
+                    {user && (
+                      <Typography
+                        variant="caption"
+                        sx={{ color: "#fff", marginLeft: "10px" }}
+                      >
+                        Hello {user?.name}
+                      </Typography>
+                    )}
+                  </IconButton>
+                </Tooltip>
+                <Menu
+                  sx={{ mt: "45px" }}
+                  id="menu-appbar"
+                  anchorEl={anchorElUser}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUserMenu}
+                >
+                  {user?.role !== "ADMIN" ? (
+                    <Box>
+                      {settingsForGeneralUser.map((setting) => (
+                        <MenuItem key={setting?.name} onClick={handleCloseUserMenu}>
+                          <Link to={setting.pathname}>
+                            <Typography textAlign="center">
+                              {setting.name}
+                            </Typography>
+                          </Link>
+                        </MenuItem>
+                      ))}
+                    </Box>
+                  ) : (
+                    <Box>
+                      {settings.map((setting) => (
+                        <MenuItem key={setting?.name} onClick={handleCloseUserMenu}>
+                          <Link to={setting.pathname}>
+                            <Typography textAlign="center">
+                              {setting.name}
+                            </Typography>
+                          </Link>
+                        </MenuItem>
+                      ))}
+                    </Box>
+                  )}
+                </Menu>
+              </>
+            )}
+
             <Button sx={{ color: "#fff" }}>
               <ShoppingCartIcon />
             </Button>
@@ -201,7 +257,7 @@ function Header() {
           </Box>
         </Toolbar>
       </Container>
-    </AppBar>
+    </CustomAppBar>
   );
 }
 export default Header;

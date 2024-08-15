@@ -58,6 +58,7 @@ const Login = () => {
       })
       .catch((err) => {
         if (err && err.message) {
+          console.log(err)
           toast.error(err.message);
         }
       });
@@ -127,7 +128,7 @@ const Login = () => {
                   Don't have an account?{" "}
                   <Link to={"/auth/signup"}>Sign Up</Link>
                 </Typography>
-                <Link>Forgot Password?</Link>
+                <Link to='/auth/reset-password'>Forgot Password?</Link>
               </Stack>
             </Grid>
             <Grid item xs={12}>

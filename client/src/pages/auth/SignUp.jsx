@@ -15,15 +15,16 @@ import { Link, useNavigate } from "react-router-dom";
 import * as yup from "yup";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import {  useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import useImageUpload from "../../utils/imageConverter";
 import { signupUser } from "../../redux/slice/userSlice";
 import { toast } from "react-toastify";
+import { setCookie } from "nookies";
 
 export const LoginWrapper = styled(Box)`
   padding: 50px 0;
   .cmn_form {
-    max-width: 400px;
+    max-width: 600px;
     border-radius: 20px;
     padding: 20px;
     margin: 0 auto;
@@ -87,12 +88,15 @@ const userSchema = yup.object().shape({
 });
 
 const SignUp = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { image, handleImageUpload } = useImageUpload();
 
+  console.log(image,"image")
+
   const onFileChange = (file) => {
+    console.log(file,"file")
     handleImageUpload(file);
   };
 
@@ -108,13 +112,23 @@ const SignUp = () => {
   });
 
   const formSubmit = (data) => {
-    setValue("profilePic", data.profilePic.name);
-    dispatch(signupUser(data))
+    const formData = new FormData();
+
+    formData.append("name", data.name);
+    formData.append("email", data.email);
+    formData.append("password", data.password);
+    formData.append("confirmPassword", data.confirmPassword);
+
+    if (data.profilePic) {
+      formData.append("profilePic", data.profilePic);
+    }
+
+    dispatch(signupUser(formData))
       .unwrap()
       .then((response) => {
         if (response && response.message) {
           toast.success(response.message);
-          navigate("/auth/login")
+          navigate(`/auth/verify-otp`);
         }
       })
       .catch((err) => {
@@ -147,11 +161,11 @@ const SignUp = () => {
                         type="file"
                         accept="image/*"
                         onChange={(e) => {
-                          onFileChange(e.target.files[0]);
+                          onFileChange(e.target.files);
                           onChange(e.target.files[0]);
                         }}
                       />
-                      <img src={image || SigninAvatar} alt="avatar" />
+                      <img src={!image.length ? SigninAvatar : image[0]} alt="avatar" />
                     </Box>
                     {invalid && (
                       <Typography sx={{ color: "red" }}>
