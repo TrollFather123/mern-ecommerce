@@ -61,10 +61,6 @@ exports.signup = async (req, res, next) => {
 
     const user = await User.create(payload);
 
-    const payload = {
-      ...user,
-      role : "GENERAL"
-    }
 
     res.status(201).json({
       status: 201,
