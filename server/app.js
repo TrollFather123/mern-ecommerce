@@ -1,6 +1,8 @@
 const userRouter = require("./routes/userRoute")
 const productRouter = require("./routes/productRoute")
 const orderRoute = require("./routes/orderRoute")
+const blogRoute = require("./routes/blogRoute")
+const commentRoute = require("./routes/commentRoute")
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -19,6 +21,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/api/v1",userRouter)
 app.use("/api/v1",productRouter)
 app.use("/api/v1/",orderRoute)
+app.use("/api/v1/",blogRoute)
+app.use("/api/v1/",commentRoute)
 
 module.exports = app
 
