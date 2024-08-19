@@ -14,10 +14,11 @@ import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { loggedOut } from "../redux/slice/userSlice";
 import { useAuth } from "../hooks/useAuth";
 import { styled } from "@mui/material";
+import { getOrders } from "../redux/slice/orderSlice";
 
 const CustomAppBar = styled(AppBar)`
   position: fixed;
@@ -25,13 +26,33 @@ const CustomAppBar = styled(AppBar)`
   top: 0;
   width: 100%;
   z-index: 99;
-`
+  .cart_btn {
+    position: relative;
+    min-width: auto;
+    padding: 0;
+    margin: 0 20px;
+    .order_amount {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 15px;
+      height: 15px;
+      font-size: 10px;
+      border-radius: 100%;
+      background-color: black;
+      position: absolute;
+      right: -5px;
+      top: -5px;
+      z-index: 1;
+    }
+  }
+`;
 
 const pages = [
   // { name: "Products", pathname: "/products" },
   // { name: "Pricing", pathname: "/pricing" },
   // { name: "Blog", pathname: "/blog" },
-  { name: "About", pathname: "/about" },
+  // { name: "About", pathname: "/about" },
 ];
 
 const settings = [
@@ -46,6 +67,7 @@ const settingsForGeneralUser = [
 ];
 
 function Header() {
+  // const [orders ,setOrders] = React.useState([]);
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -67,15 +89,23 @@ function Header() {
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
-
+  const { orders } = useSelector((s) => s.order);
   const { user } = useAuth();
 
-  console.log(user,"user")
+  console.log(user, "user");
 
   const handelLogout = () => {
     dispatch(loggedOut(null));
     navigate("/auth/login");
   };
+
+  React.useEffect(() => {
+    dispatch(getOrders());
+  }, []);
+
+  console.log(orders,"orders")
+
+
 
   return (
     <CustomAppBar position="static">
@@ -177,7 +207,6 @@ function Header() {
                     onClick={handleOpenUserMenu}
                     sx={{ p: 0, borderRadius: 0 }}
                   >
-            
                     <Avatar alt="Remy Sharp" src={user?.profilePic} />{" "}
                     {user && (
                       <Typography
@@ -208,7 +237,10 @@ function Header() {
                   {user?.role !== "ADMIN" ? (
                     <Box>
                       {settingsForGeneralUser.map((setting) => (
-                        <MenuItem key={setting?.name} onClick={handleCloseUserMenu}>
+                        <MenuItem
+                          key={setting?.name}
+                          onClick={handleCloseUserMenu}
+                        >
                           <Link to={setting.pathname}>
                             <Typography textAlign="center">
                               {setting.name}
@@ -220,7 +252,10 @@ function Header() {
                   ) : (
                     <Box>
                       {settings.map((setting) => (
-                        <MenuItem key={setting?.name} onClick={handleCloseUserMenu}>
+                        <MenuItem
+                          key={setting?.name}
+                          onClick={handleCloseUserMenu}
+                        >
                           <Link to={setting.pathname}>
                             <Typography textAlign="center">
                               {setting.name}
@@ -234,9 +269,21 @@ function Header() {
               </>
             )}
 
-            <Button sx={{ color: "#fff" }}>
-              <ShoppingCartIcon />
-            </Button>
+            {user && (
+              <Button
+                sx={{ color: "#fff" }}
+                className="cart_btn"
+                onClick={() => navigate("/add-to-cart")}
+              >
+                <ShoppingCartIcon />
+                {orders?.productList?.length && (
+                  <Typography variant="caption" className="order_amount">
+                    {orders?.productList?.length}
+                  </Typography>
+                )}
+              </Button>
+            )}
+
             {user ? (
               <Button
                 variant="outlined"

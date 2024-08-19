@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getSingleProductByCategory } from "../../redux/slice/productSlice";
 import { Box, Container, Grid, styled, Typography } from "@mui/material";
+import {Link} from "react-router-dom"
 
 
 
@@ -52,7 +53,9 @@ const EachCategoryProduct = ({ image, category }) => {
       <figure>
         <img src={image} alt="product_img" />
       </figure>
-      <Typography variant="h6">{category}</Typography>
+      <Typography variant="h6">
+        <Link to="#url">{category}</Link>
+      </Typography>
     </EachCategoryProductWrapper>
   );
 };
@@ -78,7 +81,6 @@ const CategoryProductSection = () => {
       }
     }, [singleCategoryProductList]);
   
-    console.log(singleProductList, "singleProductList");
   return (
     <CommonWrapper>
       {isSingleCategoryProductFetching ? (

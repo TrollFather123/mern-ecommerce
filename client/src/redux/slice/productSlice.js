@@ -6,10 +6,13 @@ const initialState = {
   isProductFetchPending: true,
   isSingleProductFetching: true,
   isUpdateProductPending: true,
-  isProductImageDeletePending:true,
-  isSingleCategoryProductFetching:true,
+  isProductImageDeletePending: true,
+  isSingleCategoryProductFetching: true,
+  isCategoryFecthing: true,
+  isGetAllProductsByCategory: true,
+  isFetchingProductDetails:true,
   allProducts: [],
-  singleCategoryProductList:[]
+  singleCategoryProductList: [],
 };
 
 export const createProduct = createAsyncThunk("createProduct", async (body) => {
@@ -71,6 +74,44 @@ export const getSingleProductByCategory = createAsyncThunk(
   async () => {
     try {
       const res = await axiosInstance.get(`/single-category-product`);
+      return res?.data;
+    } catch (err) {
+      throw err;
+    }
+  }
+);
+
+export const getAllCategories = createAsyncThunk(
+  "getAllCategories",
+  async () => {
+    try {
+      const res = await axiosInstance.get(`/get-categories`);
+      return res?.data;
+    } catch (err) {
+      throw err;
+    }
+  }
+);
+
+export const getProductsByCategory = createAsyncThunk(
+  "getProductsByCategory",
+  async (category) => {
+    try {
+      const res = await axiosInstance.get(
+        `/get-product-by-category?category=${category}`
+      );
+      return res?.data;
+    } catch (err) {
+      throw err;
+    }
+  }
+);
+
+export const getProductDetails = createAsyncThunk(
+  "getProductDetails",
+  async (id) => {
+    try {
+      const res = await axiosInstance.get(`/product-details/${id}`);
       return res?.data;
     } catch (err) {
       throw err;
@@ -150,20 +191,59 @@ export const productSlice = createSlice({
         state.isProductImageDeletePending = true;
       })
 
-
-       // For get single category product
-       .addCase(getSingleProductByCategory.pending, (state, action) => {
+      // For get single category product
+      .addCase(getSingleProductByCategory.pending, (state, action) => {
         state.isSingleCategoryProductFetching = true;
       })
       .addCase(getSingleProductByCategory.fulfilled, (state, { payload }) => {
         if (payload.status === 200) {
           state.isSingleCategoryProductFetching = false;
-          state.singleCategoryProductList = payload?.data
+          state.singleCategoryProductList = payload?.data;
         }
       })
       .addCase(getSingleProductByCategory.rejected, (state, action) => {
         state.isSingleCategoryProductFetching = true;
-      });
+      })
+
+      // For get category
+      .addCase(getAllCategories.pending, (state, action) => {
+        state.isCategoryFecthing = true;
+      })
+      .addCase(getAllCategories.fulfilled, (state, { payload }) => {
+        if (payload.status === 200) {
+          state.isCategoryFecthing = false;
+        }
+      })
+      .addCase(getAllCategories.rejected, (state, action) => {
+        state.isCategoryFecthing = true;
+      })
+
+      // For get products by category
+      .addCase(getProductsByCategory.pending, (state, action) => {
+        state.isGetAllProductsByCategory = true;
+      })
+      .addCase(getProductsByCategory.fulfilled, (state, { payload }) => {
+        if (payload.status === 200) {
+          state.isGetAllProductsByCategory = false;
+        }
+      })
+      .addCase(getProductsByCategory.rejected, (state, action) => {
+        state.isGetAllProductsByCategory = true;
+      })
+
+
+        // For prduct details
+        .addCase(getProductDetails.pending, (state, action) => {
+          state.isFetchingProductDetails = true;
+        })
+        .addCase(getProductDetails.fulfilled, (state, { payload }) => {
+          if (payload.status === 200) {
+            state.isFetchingProductDetails = false;
+          }
+        })
+        .addCase(getProductDetails.rejected, (state, action) => {
+          state.isFetchingProductDetails = true;
+        })
   },
 });
 

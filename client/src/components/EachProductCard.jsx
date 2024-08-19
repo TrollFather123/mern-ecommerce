@@ -1,4 +1,4 @@
-import { Box, IconButton, styled, Typography } from "@mui/material";
+import { Box, Button, IconButton, styled, Typography } from "@mui/material";
 import React from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick-theme.css";
@@ -6,6 +6,9 @@ import "slick-carousel/slick/slick.css";
 import EditProductForm from "./EditProductForm";
 import EditIcon from "@mui/icons-material/Edit";
 import currencyINRConvertor from "../utils/currencyConvertor";
+import { useDispatch } from "react-redux";
+import { createOrder } from "../redux/slice/orderSlice";
+import { toast } from "react-toastify";
 
 const EachProductCardWrapper = styled(Box)`
   background-color: #fff;
@@ -70,7 +73,7 @@ const settings = {
   slidesToScroll: 1,
 };
 
-const EachProductCard = ({
+export const EachProductCard = ({
   brandName,
   productName,
   category,
@@ -80,7 +83,10 @@ const EachProductCard = ({
   price,
   _id,
   fetchAllProducts,
+  isEdit = true,
+  isAddToCart = false,
 }) => {
+  const dispatch = useDispatch();
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
@@ -91,16 +97,37 @@ const EachProductCard = ({
     setOpen(false);
   };
 
+  const handelAddToCart = () => {
+    const body = {
+      productId: _id,
+    };
+    dispatch(createOrder(body))
+      .unwrap()
+      .then((res) => {
+        if (res) {
+          toast.success(res?.message);
+        }
+      })
+      .catch((err) => {
+        if (err) {
+          toast.error(err?.message);
+        }
+      });
+  };
+
   return (
     <EachProductCardWrapper>
-      <IconButton className="edit_icon">
-        <EditIcon
-          onClick={() => {
-            handleClickOpen();
-          }}
-          sx={{ color: "#fff" }}
-        />
-      </IconButton>
+      {isEdit && (
+        <IconButton className="edit_icon">
+          <EditIcon
+            onClick={() => {
+              handleClickOpen();
+            }}
+            sx={{ color: "#fff" }}
+          />
+        </IconButton>
+      )}
+
       <Box className="product_fig">
         {!!productImages && productImages?.length && (
           <Slider {...settings}>
@@ -112,18 +139,34 @@ const EachProductCard = ({
           </Slider>
         )}
       </Box>
-      {/* <Box className="product_content">
-        <Typography variant="h3">Product Name: {productName}</Typography>
-        <Typography variant="h4">Brand Name: {brandName}</Typography>
-        <Typography variant="h5">Category: {category}</Typography>
-        <Typography>Description: {description}</Typography>
-        <Typography sx={{ textDecoration: "line-through" ,color:'red'}}>
-          Price: {currencyINRConvertor(price)}{" "}
-        </Typography>
-        <Typography>
-          Offer Price: {currencyINRConvertor(sellingPrice)}
-        </Typography>
-      </Box> */}
+      <Box className="product_content">
+        {productName && (
+          <Typography variant="h3">Product Name: {productName}</Typography>
+        )}
+        {brandName && (
+          <Typography variant="h4">Brand Name: {brandName}</Typography>
+        )}
+
+        {category && <Typography variant="h5">Category: {category}</Typography>}
+
+        {description && <Typography>Description: {description}</Typography>}
+
+        {price && (
+          <>
+            <Typography sx={{ textDecoration: "line-through", color: "red" }}>
+              Price: {currencyINRConvertor(price)}{" "}
+            </Typography>
+            <Typography>
+              Offer Price: {currencyINRConvertor(sellingPrice)}
+            </Typography>
+          </>
+        )}
+        {isAddToCart && (
+          <Button variant="contained" color="primary" onClick={handelAddToCart}>
+            Add To Cart
+          </Button>
+        )}
+      </Box>
       {open && (
         <EditProductForm
           open={open}

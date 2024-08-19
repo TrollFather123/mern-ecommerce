@@ -11,6 +11,7 @@ import AllProducts from "../pages/AllProducts";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword";
 import VerifyOTP from "../pages/auth/VerifyOTP";
+import AddToCart from "../pages/AddToCart";
 
 const router = createBrowserRouter([
   {
@@ -30,6 +31,14 @@ const router = createBrowserRouter([
         element: (
           <AuthGuard>
             <About />
+           </AuthGuard>
+        ),
+      },
+      {
+        path: "add-to-cart",
+        element: (
+          <AuthGuard>
+            <AddToCart />
            </AuthGuard>
         ),
       },

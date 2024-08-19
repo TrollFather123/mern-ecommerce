@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 const Wrapper = styled(Box)`
   /* min-height: calc(100vh - 133px); */
   padding-top: 69px;
+  padding-bottom: 100px;
 `;
 
 function App() {

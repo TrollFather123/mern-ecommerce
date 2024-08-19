@@ -132,6 +132,25 @@ exports.deleteImage = async (req, res, next) => {
   }
 };
 
+exports.getCategories = async(req,res) =>{
+  try{
+
+    const categories = await Product.distinct("category");
+
+    res.status(200).json({
+      status: 200,
+      data: categories,
+      message: "categories fetched Succuessfully!!",
+    });
+  }
+  catch (err) {
+    res.status(401).json({
+      status: 401,
+      message: err.message,
+    });
+  }
+}
+
 exports.getCategoryProducts = async (req, res, next) => {
   try {
     const categoryList = await Product.distinct("category");
@@ -155,6 +174,48 @@ exports.getCategoryProducts = async (req, res, next) => {
     });
   }
 };
+
+exports.getProductByCategory = async(req,res) =>{
+  try{
+    const {category} = req.query;
+
+    const product = await Product.find({category});
+
+    res.status(200).json({
+      status: 200,
+      data: product,
+      message: "Products fetched Succuessfully!!",
+    });
+  }
+  catch (err) {
+    res.status(401).json({
+      status: 401,
+      message: err.message,
+    });
+  }
+}
+
+exports.getProductDetails = async(req,res) =>{
+  try{
+    const {product_id} = req.params;
+
+    const product = await Product.findById(product_id);
+
+    res.status(200).json({
+      status: 200,
+      data: product,
+      message: "Products fetched Succuessfully!!",
+    });
+  }
+  catch (err) {
+    res.status(401).json({
+      status: 401,
+      message: err.message,
+    });
+  }
+}
+
+
 
 exports.getProductStats = async (req, res) => {
   try {
@@ -183,7 +244,7 @@ exports.getProductStats = async (req, res) => {
         $sort: { maxPrice: -1 },
       },
       {
-        $match: { brandName: { $eq: brand } },
+        $match: { brandName: brand },
       },
     ]);
 
