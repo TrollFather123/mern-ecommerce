@@ -2,9 +2,12 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { axiosInstance } from "../helper/helper";
 
 const initialState = {
-  isOrderPending: true,
+  isOrderPending: false,
+  isOrderFetching:true,
   isOrderUpadtePending: false,
+  isPaymentPending: false,
   orders: [],
+  paymentDetails: null,
 };
 
 export const createOrder = createAsyncThunk(
@@ -62,6 +65,25 @@ export const deleteOrders = createAsyncThunk(
   }
 );
 
+export const makePayment = createAsyncThunk("makePayment", async (body) => {
+  try {
+    const res = await axiosInstance.post(`/payment`, body);
+    return res?.data;
+  } catch (err) {
+    throw err;
+  }
+});
+
+
+export const fetchPayment = createAsyncThunk("fetchPayment", async (id) => {
+  try {
+    const res = await axiosInstance.get(`/payment/${id}`);
+    return res?.data;
+  } catch (err) {
+    throw err;
+  }
+});
+
 export const orderSlice = createSlice({
   name: "orders",
   initialState,
@@ -83,16 +105,16 @@ export const orderSlice = createSlice({
 
       // For fetch Product
       .addCase(getOrders.pending, (state, action) => {
-        state.isOrderPending = true;
+        state.isOrderFetching = true;
       })
       .addCase(getOrders.fulfilled, (state, { payload }) => {
         if (payload.status === 200) {
-          state.isOrderPending = false;
+          state.isOrderFetching = false;
           state.orders = payload?.data[0];
         }
       })
       .addCase(getOrders.rejected, (state, action) => {
-        state.isOrderPending = true;
+        state.isOrderFetching = true;
       })
 
       // For update Product
@@ -111,7 +133,35 @@ export const orderSlice = createSlice({
       // For delete Product
       .addCase(deleteOrders.pending, (state, action) => {})
       .addCase(deleteOrders.fulfilled, (state, { payload }) => {})
-      .addCase(deleteOrders.rejected, (state, action) => {});
+      .addCase(deleteOrders.rejected, (state, action) => {})
+
+      // For delete Product
+      .addCase(makePayment.pending, (state, action) => {
+        state.isPaymentPending = true;
+      })
+      .addCase(makePayment.fulfilled, (state, { payload }) => {
+        if (payload.status === 200) {
+          state.isPaymentPending = false;
+          state.paymentDetails = payload?.data;
+        }
+      })
+      .addCase(makePayment.rejected, (state, action) => {
+        state.isPaymentPending = true;
+      })
+
+
+       // For delete Product
+       .addCase(fetchPayment.pending, (state, action) => {
+        state.isPaymentPending = true;
+      })
+      .addCase(fetchPayment.fulfilled, (state, { payload }) => {
+        if (payload.status === 200) {
+          state.isPaymentPending = false;
+        }
+      })
+      .addCase(fetchPayment.rejected, (state, action) => {
+        state.isPaymentPending = true;
+      })
   },
 });
 

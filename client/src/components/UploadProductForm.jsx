@@ -117,16 +117,7 @@ const UploadProductForm = ({ open, onClose, handelFetchProduct }) => {
     },
   });
 
-  // const [getProductImages,setGetProductImages] = useState([])
 
-  // useEffect(()=>{
-  //   if(getValues("productImages")){
-  //     setGetProductImages(getValues)
-  //   }
-
-  // },[getValues])
-
-  // console.log(getProductImages,"getProductImages");
 
   const [imageList, setImageList] = useState([]);
 
@@ -138,19 +129,6 @@ const UploadProductForm = ({ open, onClose, handelFetchProduct }) => {
     }
   }, [image]);
 
-  // const handleDeleteImage = (indexNumber) => {
-  //   const newProductImages = getProductImages.filter(
-  //     (_data, index) => index !== indexNumber
-  //   );
-
-  //   setValue("productImages", newProductImages);
-
-  //   const updatedImageList = imageList.filter(
-  //     (_, index) => index !== indexNumber
-  //   );
-
-  //   setImageList(updatedImageList);
-  // };
 
   const formSubmit = (productData) => {
     const formData = new FormData();

@@ -9,7 +9,11 @@ import {
   Button,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { getOrders } from "../redux/slice/orderSlice";
+import {
+  fetchPayment,
+  getOrders,
+  makePayment,
+} from "../redux/slice/orderSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -19,29 +23,123 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import AdjustQuantity from "../components/AdjustQuantity/AdjustQuantity";
+import { useAuth } from "../hooks/useAuth";
+import { toast } from "react-toastify";
 
 const AddToCartWrapper = styled(Box)`
   padding: 50px 0 100px 0;
   .title {
     padding: 12px 15px;
   }
+  .place_order_txt{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
 `;
 
 const AddToCart = () => {
+  const { user } = useAuth();
   const dispatch = useDispatch();
-  const { orders,isOrderPending } = useSelector((s) => s.order);
+  const { orders, isOrderFetching } = useSelector((s) => s.order);
 
   React.useEffect(() => {
     dispatch(getOrders());
-  }, []);
+  }, [dispatch]);
+
+  const [isPayementDone, setIsPaymentDone] = useState(false);
+
+  const loadScript = (src) => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = () => {
+        resolve(true);
+      };
+      script.onerror = () => {
+        resolve(false);
+      };
+      document.body.appendChild(script);
+    });
+  };
+
+  const makeRazorpayPayment = async (amount) => {
+    const data = {
+      amount: amount * 100,
+      currency: "INR",
+    };
+
+    dispatch(makePayment(data))
+      .unwrap()
+      .then((res) => {
+        if (res) {
+          handelRazorpayScreen(res?.data);
+        }
+      })
+      .catch((err) => {
+        if (err) {
+          toast.error(err?.message);
+        }
+      });
+  };
+
+  const handelRazorpayScreen = async (data) => {
+    const res = await loadScript(
+      "https://checkout.razorpay.com/v1/checkout.js"
+    );
+
+    if (!res) {
+      toast.error("some error happened!!");
+      return;
+    }
+
+    const options = {
+      key: process.env.RAZOR_PAY_KEY_ID,
+      amount: Math.floor(data?.currency / 100),
+      currency: data?.currency,
+      order_id: data?.id,
+      name: "Abhisek E-Commerce",
+      description: "Payment to Abhisek E-Commerce",
+      image: "https://example.com/your_logo",
+
+      handler: async function (response) {
+        dispatch(fetchPayment(response?.razorpay_payment_id))
+          .unwrap()
+          .then((res) => {
+            if (res) {
+              console.log(res, "res from fetch");
+              setIsPaymentDone(res?.data?.captured);
+              toast.success(
+                `${res?.data?.description} has been done successfully!!`
+              );
+            }
+          });
+      },
+      prefill: {
+        name: user?.name,
+        email: user?.email,
+      },
+      notes: {
+        address: "Abhisek e-commerce demo",
+      },
+      theme: {
+        color: "#22770f",
+      },
+    };
+
+    const paymentObject = new window.Razorpay(options);
+
+    paymentObject.open();
+  };
 
   return (
     <AddToCartWrapper>
       <Container fixed>
-        {
-            isOrderPending ? <Typography variant="h2">Loading...</Typography>
-            :
-            <Grid container spacing={3}>
+        {isOrderFetching ? (
+          <Typography variant="h2">Loading...</Typography>
+        ) : (
+          <Grid container spacing={3}>
             <Grid item md={8} xs={12}>
               <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -50,7 +148,7 @@ const AddToCart = () => {
                       <TableCell>
                         <Typography variant="h6">Product Name</Typography>
                       </TableCell>
-                      <TableCell align="right" >
+                      <TableCell align="right">
                         <Typography variant="h6">Quantity</Typography>
                       </TableCell>
                     </TableRow>
@@ -59,13 +157,18 @@ const AddToCart = () => {
                     {orders?.productList.map((row) => (
                       <TableRow
                         key={row.name}
-                        sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                        sx={{
+                          "&:last-child td, &:last-child th": { border: 0 },
+                        }}
                       >
                         <TableCell>{row.productName}</TableCell>
-                        <TableCell align="right" sx={{width:'150px'}}>
-                            {/* {row.quantity} */}
-                            <AdjustQuantity order_id={row?.order_id} quantity={row?.quantity}/>
-                            </TableCell>
+                        <TableCell align="right" sx={{ width: "150px" }}>
+                          {/* {row.quantity} */}
+                          <AdjustQuantity
+                            order_id={row?.order_id}
+                            quantity={row?.quantity}
+                          />
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -133,15 +236,23 @@ const AddToCart = () => {
                     {orders?.totalPrice}
                   </Typography>
                 </Stack>
-                <Divider/>
-                <Button variant="contained" color="primary" fullWidth>
+                <Divider />
+                {isPayementDone ? (
+                  <Typography className="place_order_txt">Order has been Placed</Typography>
+                ) : (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    onClick={() => makeRazorpayPayment(orders?.totalPrice)}
+                  >
                     Make Payment
-                </Button>
+                  </Button>
+                )}
               </Paper>
             </Grid>
           </Grid>
-        }
-     
+        )}
       </Container>
     </AddToCartWrapper>
   );

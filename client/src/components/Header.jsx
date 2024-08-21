@@ -92,7 +92,6 @@ function Header() {
   const { orders } = useSelector((s) => s.order);
   const { user } = useAuth();
 
-  console.log(user, "user");
 
   const handelLogout = () => {
     dispatch(loggedOut(null));
@@ -103,7 +102,6 @@ function Header() {
     dispatch(getOrders());
   }, []);
 
-  console.log(orders,"orders")
 
 
 

@@ -78,7 +78,7 @@ const AllProducts = () => {
             <Grid container spacing={3}>
               {!!productList && productList?.length && productList?.map((item) => (
                 <Grid item lg={3} xs={12} key={item?.description}>
-                  <EachProductCard productImages={item?.productImages} fetchAllProducts={fetchAllProducts}/>
+                  <EachProductCard productImages={item?.productImages} _id={item?._id} fetchAllProducts={fetchAllProducts}/>
                 </Grid>
               ))}
             </Grid>

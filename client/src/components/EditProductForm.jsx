@@ -49,6 +49,8 @@ const EditProductForm = ({ open, onClose, _id, fetchAllProducts }) => {
 
   const { isSingleProductFetching } = useSelector((s) => s.product);
 
+  console.log(_id,"_id")
+
   const { handleSubmit, control, setValue } = useForm({
     resolver: yupResolver(productSchema),
     defaultValues: {
