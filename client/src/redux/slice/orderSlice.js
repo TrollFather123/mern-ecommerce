@@ -3,9 +3,10 @@ import { axiosInstance } from "../helper/helper";
 
 const initialState = {
   isOrderPending: false,
-  isOrderFetching:true,
+  isOrderFetching: true,
   isOrderUpadtePending: false,
   isPaymentPending: false,
+  isOrderCompletePending:true,
   orders: [],
   paymentDetails: null,
 };
@@ -74,10 +75,18 @@ export const makePayment = createAsyncThunk("makePayment", async (body) => {
   }
 });
 
-
 export const fetchPayment = createAsyncThunk("fetchPayment", async (id) => {
   try {
     const res = await axiosInstance.get(`/payment/${id}`);
+    return res?.data;
+  } catch (err) {
+    throw err;
+  }
+});
+
+export const completeOrder = createAsyncThunk("completeOrder", async (id) => {
+  try {
+    const res = await axiosInstance.put(`/complete-order/${id}`);
     return res?.data;
   } catch (err) {
     throw err;
@@ -149,9 +158,8 @@ export const orderSlice = createSlice({
         state.isPaymentPending = true;
       })
 
-
-       // For delete Product
-       .addCase(fetchPayment.pending, (state, action) => {
+      // For delete Product
+      .addCase(fetchPayment.pending, (state, action) => {
         state.isPaymentPending = true;
       })
       .addCase(fetchPayment.fulfilled, (state, { payload }) => {
@@ -162,6 +170,19 @@ export const orderSlice = createSlice({
       .addCase(fetchPayment.rejected, (state, action) => {
         state.isPaymentPending = true;
       })
+
+      // For complete Order
+      .addCase(completeOrder.pending, (state, action) => {
+        state.isOrderCompletePending = true;
+      })
+      .addCase(completeOrder.fulfilled, (state, { payload }) => {
+        if (payload.status === 200) {
+          state.isOrderCompletePending = false;
+        }
+      })
+      .addCase(completeOrder.rejected, (state, action) => {
+        state.isOrderCompletePending = true;
+      });
   },
 });
 

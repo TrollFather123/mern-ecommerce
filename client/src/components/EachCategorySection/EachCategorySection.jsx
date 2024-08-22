@@ -26,7 +26,7 @@ const EachCategorySection = ({ categoryName }) => {
 
   return (
     <EachCategorySectionWrapper>
-      <Container fixed>
+     <Container maxWidth="xl" fixed>
         <Typography
           variant="h5"
           sx={{ textTransform: "capitalize", marginBottom: "30px" }}

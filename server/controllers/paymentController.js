@@ -65,8 +65,6 @@ exports.getPayment = async (req, res, next) => {
 
     const payment = await instance.payments.fetch(paymentID);
 
-    console.log(payment,"payment")
-
     if (!payment) {
       return res.status(404).json({
         status: 404,

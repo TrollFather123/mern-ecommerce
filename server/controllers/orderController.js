@@ -15,7 +15,7 @@ exports.createOrder = async (req, res, next) => {
 
     const isOrderExist = await Order.findOne({ productId, userId: userID });
 
-    if (isOrderExist) {
+    if (isOrderExist && !isOrderExist?.isOrderComplete) {
       const updatedOrder = await Order.findByIdAndUpdate(
         isOrderExist._id,
         {
@@ -36,6 +36,7 @@ exports.createOrder = async (req, res, next) => {
         ...req.body,
         userId: userID,
         quantity: 1,
+        isOrderComplete: false,
       };
       const newOrder = await Order.create(payload);
 
@@ -62,6 +63,10 @@ exports.getOrders = async (req, res) => {
         $match: { userId: currentUser },
       },
       {
+        $match: { isOrderComplete: false },
+      },
+
+      {
         $lookup: {
           from: "products",
           localField: "productId",
@@ -82,6 +87,7 @@ exports.getOrders = async (req, res) => {
           order_id: { $first: "$_id" },
           quantity: { $first: "$quantity" },
           price: { $first: "$product_details.sellingPrice" },
+          isOrderComplete: { $first: "$isOrderComplete" },
         },
       },
       {
@@ -94,6 +100,7 @@ exports.getOrders = async (req, res) => {
               order_id: "$order_id",
               quantity: "$quantity",
               price: "$price",
+              isOrderComplete: "$isOrderComplete",
             },
           },
         },
@@ -122,6 +129,7 @@ exports.getOrders = async (req, res) => {
           productList: 1,
           totalPrice: 1,
           user_name: "$user.name",
+          user_id: 1,
         },
       },
     ]);
@@ -135,6 +143,43 @@ exports.getOrders = async (req, res) => {
     res.status(401).json({
       status: 401,
       message: err.message,
+    });
+  }
+};
+
+exports.completeOrder = async (req, res, next) => {
+  try {
+    const { user_id } = req.params;
+
+    const userId = new mongoose.Types.ObjectId(user_id);
+
+    const orders = await Order.find({ userId });
+
+    const completedOrders = [];
+
+    for (const order of orders) {
+
+      const eachCompleteOrder = await Order.findByIdAndUpdate(
+        order._id, 
+        {
+          isOrderComplete: true,
+        },
+        {
+          new: true, 
+        }
+      );
+      completedOrders.push(eachCompleteOrder);
+    }
+
+    res.status(200).json({
+      status: 200,
+      data: completedOrders, 
+      message: "Orders completed successfully!",
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 400,
+      message: "Order completion failed!",
     });
   }
 };

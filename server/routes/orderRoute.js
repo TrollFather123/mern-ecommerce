@@ -9,5 +9,6 @@ router.post("/orders", authToken,orderController.createOrder);
 router.get("/orders", authToken,orderController.getOrders);
 router.put("/update-order",orderController.updateOrder);
 router.delete("/delete-order/:order_id",orderController.deleteOrder);
+router.put("/complete-order/:user_id",orderController.completeOrder);
 
 module.exports = router;

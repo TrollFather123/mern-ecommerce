@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import {
+  completeOrder,
   fetchPayment,
   getOrders,
   makePayment,
@@ -31,7 +32,7 @@ const AddToCartWrapper = styled(Box)`
   .title {
     padding: 12px 15px;
   }
-  .place_order_txt{
+  .place_order_txt {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -42,13 +43,13 @@ const AddToCartWrapper = styled(Box)`
 const AddToCart = () => {
   const { user } = useAuth();
   const dispatch = useDispatch();
-  const { orders, isOrderFetching } = useSelector((s) => s.order);
+  const { orders, isOrderFetching ,isOrderCompletePending} = useSelector((s) => s.order);
 
   React.useEffect(() => {
     dispatch(getOrders());
   }, [dispatch]);
 
-  const [isPayementDone, setIsPaymentDone] = useState(false);
+
 
   const loadScript = (src) => {
     return new Promise((resolve) => {
@@ -108,10 +109,14 @@ const AddToCart = () => {
           .unwrap()
           .then((res) => {
             if (res) {
-              console.log(res, "res from fetch");
-              setIsPaymentDone(res?.data?.captured);
+              dispatch(completeOrder(user._id)).unwrap().then((res)=>{
+                if(res){
+                  dispatch(getOrders())
+                }
+              })
               toast.success(
                 `${res?.data?.description} has been done successfully!!`
+
               );
             }
           });
@@ -139,119 +144,134 @@ const AddToCart = () => {
         {isOrderFetching ? (
           <Typography variant="h2">Loading...</Typography>
         ) : (
-          <Grid container spacing={3}>
-            <Grid item md={8} xs={12}>
-              <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>
-                        <Typography variant="h6">Product Name</Typography>
-                      </TableCell>
-                      <TableCell align="right">
-                        <Typography variant="h6">Quantity</Typography>
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {orders?.productList.map((row) => (
-                      <TableRow
-                        key={row.name}
-                        sx={{
-                          "&:last-child td, &:last-child th": { border: 0 },
-                        }}
-                      >
-                        <TableCell>{row.productName}</TableCell>
-                        <TableCell align="right" sx={{ width: "150px" }}>
-                          {/* {row.quantity} */}
-                          <AdjustQuantity
-                            order_id={row?.order_id}
-                            quantity={row?.quantity}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Grid>
-            <Grid item md={4} xs={12}>
-              <Paper>
-                <Box className="title">
-                  <Typography variant="h6">Order Details</Typography>
-                </Box>
-                <Divider />
-                <TableContainer>
-                  <Table sx={{ minWidth: "100%" }} aria-label="simple table">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>
-                          <Typography variant="h6">Product Name</Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="h6">Quantity</Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="h6">Price</Typography>
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {orders?.productList.map((row) => (
-                        <TableRow
-                          key={row.name}
-                          sx={{
-                            "&:last-child td, &:last-child th": { border: 0 },
-                          }}
-                        >
-                          <TableCell>{row.productName}</TableCell>
+          <>
+            {!orders ? (
+              <Box className="nothing_in_cart">
+                <Typography>Oops there is nothing in cart!!!</Typography>
+              </Box>
+            ) : (
+              <Grid container spacing={3}>
+                <Grid item md={8} xs={12}>
+                  <TableContainer component={Paper}>
+                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                      <TableHead>
+                        <TableRow>
                           <TableCell>
-                            {row.quantity} x {row?.price}
+                            <Typography variant="h6">Product Name</Typography>
                           </TableCell>
                           <TableCell align="right">
-                            {Math.floor(row.quantity * row.price)}
+                            <Typography variant="h6">Quantity</Typography>
                           </TableCell>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-                <Divider />
-                <Stack
-                  direction="row"
-                  alignItems="center"
-                  justifyContent="space-between"
-                  sx={{ padding: "16px" }}
-                >
-                  <Typography
-                    variant="h6"
-                    sx={{ fontWeight: "bold", fontSize: "14px" }}
-                  >
-                    Total
-                  </Typography>
-                  <Typography
-                    variant="h6"
-                    sx={{ fontWeight: "bold", fontSize: "14px" }}
-                  >
-                    {orders?.totalPrice}
-                  </Typography>
-                </Stack>
-                <Divider />
-                {isPayementDone ? (
-                  <Typography className="place_order_txt">Order has been Placed</Typography>
-                ) : (
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    onClick={() => makeRazorpayPayment(orders?.totalPrice)}
-                  >
-                    Make Payment
-                  </Button>
-                )}
-              </Paper>
-            </Grid>
-          </Grid>
+                      </TableHead>
+                      <TableBody>
+                        {orders?.productList.map((row) => (
+                          <TableRow
+                            key={row.name}
+                            sx={{
+                              "&:last-child td, &:last-child th": { border: 0 },
+                            }}
+                          >
+                            <TableCell>{row.productName}</TableCell>
+                            <TableCell align="right" sx={{ width: "150px" }}>
+                              {/* {row.quantity} */}
+                              <AdjustQuantity
+                                order_id={row?.order_id}
+                                quantity={row?.quantity}
+                              />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Grid>
+                <Grid item md={4} xs={12}>
+                  <Paper>
+                    <Box className="title">
+                      <Typography variant="h6">Order Details</Typography>
+                    </Box>
+                    <Divider />
+                    <TableContainer>
+                      <Table
+                        sx={{ minWidth: "100%" }}
+                        aria-label="simple table"
+                      >
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>
+                              <Typography variant="h6">Product Name</Typography>
+                            </TableCell>
+                            <TableCell>
+                              <Typography variant="h6">Quantity</Typography>
+                            </TableCell>
+                            <TableCell>
+                              <Typography variant="h6">Price</Typography>
+                            </TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {orders?.productList.map((row) => (
+                            <TableRow
+                              key={row.name}
+                              sx={{
+                                "&:last-child td, &:last-child th": {
+                                  border: 0,
+                                },
+                              }}
+                            >
+                              <TableCell>{row.productName}</TableCell>
+                              <TableCell>
+                                {row.quantity} x {row?.price}
+                              </TableCell>
+                              <TableCell align="right">
+                                {Math.floor(row.quantity * row.price)}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                    <Divider />
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      sx={{ padding: "16px" }}
+                    >
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: "bold", fontSize: "14px" }}
+                      >
+                        Total
+                      </Typography>
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: "bold", fontSize: "14px" }}
+                      >
+                        {orders?.totalPrice}
+                      </Typography>
+                    </Stack>
+                    <Divider />
+                    {!isOrderCompletePending ? (
+                      <Typography className="place_order_txt">
+                        Order has been Placed
+                      </Typography>
+                    ) : (
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        fullWidth
+                        onClick={() => makeRazorpayPayment(orders?.totalPrice)}
+                      >
+                        Make Payment
+                      </Button>
+                    )}
+                  </Paper>
+                </Grid>
+              </Grid>
+            )}
+          </>
         )}
       </Container>
     </AddToCartWrapper>
