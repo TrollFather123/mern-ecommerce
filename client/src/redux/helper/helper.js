@@ -1,7 +1,7 @@
 import axios from "axios";
 import { parseCookies } from 'nookies'
 
-const BASE_URL = "https://mern-ecommerce-api-phi.vercel.app/api/v1";
+const BASE_URL = "http://localhost:8000/api/v1";
 
 export const axiosInstance = axios.create({
     baseURL:BASE_URL
