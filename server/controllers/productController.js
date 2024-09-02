@@ -15,7 +15,7 @@ exports.uploadProducts = async (req, res, next) => {
     }
 
     const productImageUrls = req.files.map((file) => {
-      return `${req.protocol}://${req.get("host")}/uploads/${file.filename}`;
+      return `${process.env.BACKEND_URL}/uploads/${file.filename}`;
     });
 
     const payload = {
@@ -77,7 +77,7 @@ exports.updateProduct = async (req, res, next) => {
     const currentProduct = await Product.findById(id);
 
     const productImageUrls = req.files.map((file) => {
-      return `${req.protocol}://${req.get("host")}/uploads/${file.filename}`;
+      return `${process.env.BACKEND_URL}/uploads/${file.filename}`;
     });
 
     const payload = {

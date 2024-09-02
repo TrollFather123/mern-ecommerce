@@ -20,7 +20,7 @@ exports.signup = async (req, res, next) => {
 
     // const imageURL = req.file ? req.file.path : null;
 
-    const profilePicUrl = `${req.protocol}://${req.get("host")}/uploads/${
+    const profilePicUrl = `${process.env.BACKEND_URL}/uploads/${
       req.file.filename
     }`;
 
