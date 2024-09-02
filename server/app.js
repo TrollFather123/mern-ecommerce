@@ -10,11 +10,15 @@ const bodyParser = require("body-parser");
 const path = require("path");
 
 const app = express();
-app.use(cors({
+
+const corsConfig  = {
     origin:"*",
     methods:["PATCH","PUT","POST","GET","DELETE"],
-    allowedHeaders:["Content-type","Authorization"]
-}));
+    allowedHeaders:["Content-type","Authorization"],
+    credential:true
+}
+app.options("",cors(corsConfig))
+app.use(cors(corsConfig));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
