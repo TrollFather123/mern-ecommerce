@@ -17,7 +17,7 @@ const corsConfig  = {
     allowedHeaders:["Content-type","Authorization"],
     credential:true
 }
-app.options("",cors(corsConfig))
+
 app.use(cors(corsConfig));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
