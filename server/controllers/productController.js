@@ -23,6 +23,8 @@ exports.uploadProducts = async (req, res, next) => {
       productImages: productImageUrls,
     };
 
+    console.log(payload,"payload")
+
     const product = await Product.create(payload);
 
     res.status(201).json({
