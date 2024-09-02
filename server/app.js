@@ -19,6 +19,10 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.get("/",(req,res)=>{
+    res.json("Welcome to Abhisek Mern E-commerce API")
+})
+
 app.use("/api/v1",userRouter)
 app.use("/api/v1",productRouter)
 app.use("/api/v1/",orderRoute)
