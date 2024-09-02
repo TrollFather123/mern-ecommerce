@@ -14,6 +14,7 @@ router.get("/single-category-product",productController.getCategoryProducts);
 router.get("/product-details/:product_id",productController.getProductDetails);
 router.get("/product-stats",productController.getProductStats);
 router.get("/get-categories",productController.getCategories)
-router.get("/get-product-by-category",productController.getProductByCategory)
+router.get("/get-product-by-category",productController.getProductByCategory);
+router.delete("/delete-product/:id",productController.deleteProduct)
 
 module.exports = router;

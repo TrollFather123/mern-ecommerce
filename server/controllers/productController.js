@@ -261,3 +261,23 @@ exports.getProductStats = async (req, res) => {
     });
   }
 };
+
+exports.deleteProduct = async(req,res) =>{
+  try{
+    const {id} = req.params;
+
+     await Product.findByIdAndDelete(id);
+
+    res.status(200).json({
+      status: 200,
+      message: "Product Deleted Successfully",
+    });
+  }
+  catch (err) {
+    res.status(401).json({
+      status: 401,
+      message: err.message,
+    });
+  }
+}
+
